@@ -42,8 +42,6 @@ export type Community = {
   outlook: Outlook;
   notable?: string[];
   buyerProfile?: string;
-  // Geometry hint for the schematic lake map
-  lakePos?: { x: number; y: number }; // 0–100 viewBox
   // Directional color for small multiples / choropleth
   accentColor?: string;
   // Short thesis for cards
@@ -88,7 +86,6 @@ export const lakeCommunities: Community[] = [
       "Kempfenhausen €22M (Handelsblatt 2023)",
     ],
     buyerProfile: "industrial heirs, tech founders, international UHNW",
-    lakePos: { x: 62, y: 28 },
     accentColor: "#18475c",
     thesis:
       "Tightest supply on the lake, lowest Gewerbesteuer-Hebesatz in the Kreis, and the Wittelsbach/Siemens aura that sets the trophy ceiling.",
@@ -133,7 +130,6 @@ export const lakeCommunities: Community[] = [
     outlook: "bullish",
     notable: ["Garatshausen estate ≈ €26M (FAZ 2023)"],
     buyerProfile: "old-money Wittelsbach orbit, European families",
-    lakePos: { x: 36, y: 52 },
     accentColor: "#225d76",
     thesis:
       "Most aristocratic texture on the lake — Golfclub Feldafing, Lenné Park, and Wittelsbach view-protection that caps future shoreline density.",
@@ -177,7 +173,6 @@ export const lakeCommunities: Community[] = [
     outlook: "neutral-bullish",
     notable: ["Oberzeismering villa €17M (SZ 2022)"],
     buyerProfile: "cultural elite, academics, diplomats",
-    lakePos: { x: 30, y: 72 },
     accentColor: "#3f7d96",
     thesis:
       "Kurort charm, Evangelische Akademie, and the only lakefront Gemeinde with its own Gymnasium — delivers the most complete primary-residence package west-shore.",
@@ -222,7 +217,6 @@ export const lakeCommunities: Community[] = [
     outlook: "bullish",
     notable: ["Niederpöcking villa ≈ €18M (E&V 2024)"],
     buyerProfile: "relocating DAX executives with school-age children",
-    lakePos: { x: 40, y: 44 },
     accentColor: "#225d76",
     thesis:
       "Best-in-class combination of MIS Munich in 10 minutes, S-Bahn Possenhofen, and Wittelsbach-Sisi scarcity value.",
@@ -269,7 +263,6 @@ export const lakeCommunities: Community[] = [
       "Söcking €9.8M (E&V 2024)",
     ],
     buyerProfile: "executive families, medical consultants, double-professional",
-    lakePos: { x: 52, y: 22 },
     accentColor: "#6fa0b4",
     thesis:
       "Urbanity + S6 + MIS + Klinikum — the only lakefront Kreisstadt with full infrastructure, traded at a discount to Berg/Feldafing for density.",
@@ -315,7 +308,6 @@ export const lakeCommunities: Community[] = [
     outlook: "neutral",
     notable: ["Monastery-adjacent parcel €12M (2023)"],
     buyerProfile: "connoisseur old-money, art collectors, writers",
-    lakePos: { x: 28, y: 82 },
     accentColor: "#8e8264",
     thesis:
       "The lake's quietest prestige: Buchheim Museum, Kloster, and the lowest direct-lakefront turnover — a zero-beta holding for collectors.",
@@ -358,7 +350,6 @@ export const lakeCommunities: Community[] = [
     outlook: "neutral",
     notable: ["St. Heinrich €9.5M (Merkur 2024)"],
     buyerProfile: "nature buyer, alpine-view priority, semi-retired",
-    lakePos: { x: 35, y: 94 },
     accentColor: "#b9ae92",
     thesis:
       "Best Alpenblick, most inventory at the low end of the €/m² table, but the S6 terminus tax is real — 55–62 min to Marienplatz disqualifies for commuters.",
@@ -405,7 +396,6 @@ export const lakeCommunities: Community[] = [
       "Ambach artist-estate €11M (2024)",
     ],
     buyerProfile: "artistic dynasties, Munich creative-industry principals",
-    lakePos: { x: 70, y: 56 },
     accentColor: "#4d4432",
     thesis:
       "East-shore artist mile with the richest lakefront turnover story (Ammerland, Ambach). No S-Bahn is the tax — and the moat.",
