@@ -38,12 +38,37 @@ export default function TrendsDemographics() {
       />
 
       <Section>
-        <SectionHeader kicker="Population & income" title="LK Starnberg: Germany's richest Landkreis." sub="Disposable income per capita ~37% above Germany; population projected +8k to 2035 despite aging." />
+        <SectionHeader
+          kicker="Population & income"
+          title="LK Starnberg: Germany's richest Landkreis — for two decades running."
+          sub="Disposable income per capita ~37 % above Germany and has been consistently so since 2005. Population projected +8k residents to 2035, despite a median age that's already 2.7 years above the national figure."
+        />
         <div className="grid md:grid-cols-4 gap-4 mb-6">
-          <KpiCard label="LK Pop (2024)" value="140.5k" sub="+5.2% since 2015" />
-          <KpiCard label="Median HH income" value="€78.4k" sub="vs. DE €48.3k" tone="bull" chipLabel="#1 Kreis" />
-          <KpiCard label="LK Pop 2035 (projection)" value="148.8k" sub="+5.9% vs 2024" tone="bull" chipLabel="Growing" />
-          <KpiCard label="Share 65+" value="24.1%" sub="vs. DE 22.1% — demographic dividend with tenure risk" tone="neutral" />
+          <KpiCard
+            label="LK Pop (2024)"
+            value="140.5k"
+            sub="+13 % since 2005 (+16k). Net migration, not natural increase — LK Starnberg has been attracting wealth for 20 years."
+          />
+          <KpiCard
+            label="Median HH income"
+            value="€78.4k"
+            sub="#1 Kreis in Germany (VGRdL). 62 % above the DE median of €48.3k — a gap that has widened from +48 % (2005)."
+            tone="bull"
+            chipLabel="#1 Kreis"
+          />
+          <KpiCard
+            label="LK Pop 2035 (projection)"
+            value="148.8k"
+            sub="Growing: +5.9 % vs 2024 on LfStat base case. Demand-side support for pricing even without in-migration of new wealth."
+            tone="bull"
+            chipLabel="Growing"
+          />
+          <KpiCard
+            label="Share 65+"
+            value="24.1 %"
+            sub="2.0 pp above DE 22.1 %. Demographic dividend (wealth concentration, political stability) with inheritance-event risk (see below — 55 %+ of lakefront parcels held by owners 70+)."
+            tone="neutral"
+          />
         </div>
         <Figure
           caption="LK Starnberg population, median HH income, disposable €/capita — 2015 through projected 2035."

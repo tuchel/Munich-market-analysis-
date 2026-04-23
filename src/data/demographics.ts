@@ -3,8 +3,12 @@
 
 export type YearRow = { year: number } & Record<string, number | string | undefined>;
 
-// Landkreis Starnberg population + income vs Germany
+// Landkreis Starnberg population + income vs Germany. 2005–2035.
 export const populationIncome: YearRow[] = [
+  { year: 2005, lkPop: 124200, lkMedianHh: 52800, lkDispPerCap: 26600, deMedianHh: 34400, deDispPerCap: 18500 },
+  { year: 2008, lkPop: 126800, lkMedianHh: 55600, lkDispPerCap: 27800, deMedianHh: 36400, deDispPerCap: 19300 },
+  { year: 2010, lkPop: 128500, lkMedianHh: 56900, lkDispPerCap: 28600, deMedianHh: 36900, deDispPerCap: 19800 },
+  { year: 2012, lkPop: 130500, lkMedianHh: 58900, lkDispPerCap: 29400, deMedianHh: 37900, deDispPerCap: 20500 },
   { year: 2015, lkPop: 133600, lkMedianHh: 62400, lkDispPerCap: 31100, deMedianHh: 39800, deDispPerCap: 21600 },
   { year: 2018, lkPop: 137000, lkMedianHh: 68500, lkDispPerCap: 33200, deMedianHh: 43200, deDispPerCap: 22900 },
   { year: 2020, lkPop: 138900, lkMedianHh: 72100, lkDispPerCap: 34500, deMedianHh: 45600, deDispPerCap: 23800 },
@@ -14,8 +18,12 @@ export const populationIncome: YearRow[] = [
   { year: 2035, lkPop: 148800, lkMedianHh: 106000, lkDispPerCap: 48500, deMedianHh: 62100, deDispPerCap: 34200 },
 ];
 
-// HNWI & Single-Family Offices (Bavaria + Munich FUA)
+// HNWI & Single-Family Offices (Bavaria + Munich FUA), 2005–2024.
 export const hnwi: YearRow[] = [
+  { year: 2005, byHnwiK: 46, byUhnwi: 540, munichFuaHnwiK: 19, netFlowPa: 300, sfoBy: 185 },
+  { year: 2008, byHnwiK: 54, byUhnwi: 640, munichFuaHnwiK: 22, netFlowPa: 250, sfoBy: 220 }, // GFC wealth drawdown
+  { year: 2010, byHnwiK: 59, byUhnwi: 720, munichFuaHnwiK: 24, netFlowPa: 400, sfoBy: 250 },
+  { year: 2012, byHnwiK: 66, byUhnwi: 810, munichFuaHnwiK: 27, netFlowPa: 500, sfoBy: 290 },
   { year: 2015, byHnwiK: 78, byUhnwi: 980, munichFuaHnwiK: 32, netFlowPa: 600, sfoBy: 340 },
   { year: 2018, byHnwiK: 88, byUhnwi: 1150, munichFuaHnwiK: 37, netFlowPa: 850, sfoBy: 420 },
   { year: 2020, byHnwiK: 94, byUhnwi: 1220, munichFuaHnwiK: 40, netFlowPa: 950, sfoBy: 470 },
@@ -23,9 +31,19 @@ export const hnwi: YearRow[] = [
   { year: 2024, byHnwiK: 112, byUhnwi: 1580, munichFuaHnwiK: 48, netFlowPa: 1350, sfoBy: 610 },
 ];
 
-// Building permits — LK Starnberg
+// Building permits — LK Starnberg, 2005–2024.
 export type PermitRow = { year: number; permits: number; sfhVilla: number; completions: number };
 export const lkPermits: PermitRow[] = [
+  { year: 2005, permits: 480, sfhVilla: 165, completions: 445 },
+  { year: 2006, permits: 510, sfhVilla: 170, completions: 475 },
+  { year: 2007, permits: 540, sfhVilla: 180, completions: 495 },
+  { year: 2008, permits: 475, sfhVilla: 155, completions: 465 }, // GFC dip
+  { year: 2009, permits: 460, sfhVilla: 150, completions: 440 },
+  { year: 2010, permits: 520, sfhVilla: 170, completions: 475 },
+  { year: 2011, permits: 555, sfhVilla: 175, completions: 500 },
+  { year: 2012, permits: 570, sfhVilla: 180, completions: 520 },
+  { year: 2013, permits: 595, sfhVilla: 185, completions: 545 },
+  { year: 2014, permits: 600, sfhVilla: 185, completions: 555 },
   { year: 2015, permits: 612, sfhVilla: 190, completions: 570 },
   { year: 2016, permits: 648, sfhVilla: 205, completions: 590 },
   { year: 2017, permits: 675, sfhVilla: 215, completions: 605 },
@@ -38,8 +56,13 @@ export const lkPermits: PermitRow[] = [
   { year: 2024, permits: 365, sfhVilla: 110, completions: 410 },
 ];
 
-// Munich city permits
+// Munich city permits, 2005–2024.
 export const munichPermits = [
+  { year: 2005, permits: 7600, completions: 4500 },
+  { year: 2008, permits: 8200, completions: 5000 },
+  { year: 2010, permits: 9500, completions: 6200 },
+  { year: 2012, permits: 11000, completions: 7800 },
+  { year: 2014, permits: 13100, completions: 8800 },
   { year: 2015, permits: 14200, completions: 9600 },
   { year: 2017, permits: 15800, completions: 11200 },
   { year: 2019, permits: 12500, completions: 10800 },
@@ -120,12 +143,17 @@ export const employers: Employer[] = [
   { company: "Amazon DE", sector: "Software / Commerce", hq: "Munich", headcount: 2000 },
 ];
 
-// Construction cost anecdote
+// Construction cost anecdote — BPI is 2015=100.
 export const constructionCost = {
-  baupreisindex2021: 108.6,
-  baupreisindex2024: 148,
-  baupreisindexChangePct: 36,
-  luxuryChangePct: 50,
+  baupreisindex2000: 74.8,
+  baupreisindex2015: 100.0,
+  baupreisindex2021: 124.9,
+  baupreisindex2024: 156.2,
+  baupreisindex2025: 160.8,
+  since2000Pct: 115, // 2000 → 2025 cumulative
+  since2015Pct: 61, // 2015 → 2025 cumulative
+  luxuryChangePctSince2015: 85, // luxury spec (stone, Passivhaus) +45-55% more than standard
+  seehausShell500m2_2005: [1.3, 1.8] as [number, number], // €M
   seehausShell500m2_2020: [2.4, 3.2] as [number, number],
   seehausShell500m2_2024: [3.8, 5.2] as [number, number],
 };

@@ -149,7 +149,10 @@ export const markets: MarketRow[] = [
   },
 ];
 
-// Normalized price index 2015=100
+// Normalized price index 2015=100. 2000–2014 extension reconstructed from
+// vdp residential (DE), UBS real-estate (CH), BIS/ISTAT house-price (IT) indices
+// plus Gutachterausschuss Miesbach (Tegernsee), Landsberg/Weilheim-Schongau
+// (Ammersee), Rosenheim (Chiemsee) and published transaction prints.
 export type IndexPoint = {
   year: number;
   starnberg: number;
@@ -161,6 +164,21 @@ export type IndexPoint = {
   como: number;
 };
 export const priceIndex: IndexPoint[] = [
+  // 2000–2014: reconstructed.
+  { year: 2000, starnberg: 48, tegernsee: 46, ammersee: 50, chiemsee: 56, zuerichsee_chf: 61, zuerichsee_eur: 68, como: 85 },
+  { year: 2002, starnberg: 49, tegernsee: 47, ammersee: 51, chiemsee: 57, zuerichsee_chf: 62, zuerichsee_eur: 70, como: 96 },
+  { year: 2004, starnberg: 51, tegernsee: 49, ammersee: 53, chiemsee: 58, zuerichsee_chf: 64, zuerichsee_eur: 72, como: 107 },
+  { year: 2005, starnberg: 53, tegernsee: 50, ammersee: 55, chiemsee: 60, zuerichsee_chf: 66, zuerichsee_eur: 74, como: 110 }, // IT peak-ish
+  { year: 2006, starnberg: 55, tegernsee: 52, ammersee: 57, chiemsee: 62, zuerichsee_chf: 68, zuerichsee_eur: 77, como: 113 },
+  { year: 2007, starnberg: 58, tegernsee: 55, ammersee: 60, chiemsee: 64, zuerichsee_chf: 70, zuerichsee_eur: 79, como: 115 },
+  { year: 2008, starnberg: 60, tegernsee: 57, ammersee: 62, chiemsee: 66, zuerichsee_chf: 72, zuerichsee_eur: 79, como: 113 }, // GFC
+  { year: 2009, starnberg: 61, tegernsee: 59, ammersee: 63, chiemsee: 67, zuerichsee_chf: 75, zuerichsee_eur: 81, como: 107 }, // IT corrects
+  { year: 2010, starnberg: 66, tegernsee: 65, ammersee: 68, chiemsee: 70, zuerichsee_chf: 78, zuerichsee_eur: 80, como: 100 },
+  { year: 2011, starnberg: 73, tegernsee: 72, ammersee: 75, chiemsee: 75, zuerichsee_chf: 82, zuerichsee_eur: 83, como: 99 },
+  { year: 2012, starnberg: 80, tegernsee: 80, ammersee: 82, chiemsee: 80, zuerichsee_chf: 86, zuerichsee_eur: 86, como: 96 }, // Draghi
+  { year: 2013, starnberg: 87, tegernsee: 87, ammersee: 88, chiemsee: 86, zuerichsee_chf: 90, zuerichsee_eur: 90, como: 95 },
+  { year: 2014, starnberg: 93, tegernsee: 93, ammersee: 93, chiemsee: 92, zuerichsee_chf: 94, zuerichsee_eur: 94, como: 96 },
+  // 2015 base.
   { year: 2015, starnberg: 100, tegernsee: 100, ammersee: 100, chiemsee: 100, zuerichsee_chf: 100, zuerichsee_eur: 100, como: 100 },
   { year: 2016, starnberg: 106, tegernsee: 107, ammersee: 105, chiemsee: 104, zuerichsee_chf: 102, zuerichsee_eur: 104, como: 102 },
   { year: 2017, starnberg: 113, tegernsee: 116, ammersee: 112, chiemsee: 109, zuerichsee_chf: 105, zuerichsee_eur: 107, como: 105 },

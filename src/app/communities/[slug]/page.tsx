@@ -64,7 +64,7 @@ export default function CommunityPage({ params }: { params: { slug: string } }) 
           <KpiCard
             label="Outlook"
             value={ratingLabel(c.outlook)}
-            sub={c.gewStHebesatz ? `GewSt ${c.gewStHebesatz}% · GrSt B ${c.grundsteuerB}%` : undefined}
+            sub={`${c.thesis.split(".")[0]}. GewSt ${c.gewStHebesatz} % · GrSt B ${c.grundsteuerB} %.`}
             tone={ratingTone(c.outlook)}
             chipLabel={ratingLabel(c.outlook)}
           />

@@ -52,7 +52,7 @@ export function PriceLine({
               iconType="plainline"
             />
           )}
-          {marks?.map((m) => (
+          {marks?.map((m, i) => (
             <ReferenceLine
               key={String(m.x)}
               x={m.x}
@@ -61,9 +61,10 @@ export function PriceLine({
               label={{
                 value: m.label,
                 position: "top",
-                fill: chartPalette.muted,
+                fill: m.color || chartPalette.muted,
                 fontSize: 10,
                 fontStyle: "italic",
+                dy: (i % 2 === 0 ? -14 : -2),
               }}
             />
           ))}

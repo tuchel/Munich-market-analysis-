@@ -5,6 +5,7 @@ import { Callout, Figure } from "@/components/Callout";
 import { Section, Prose } from "@/components/Section";
 import { SourceCite } from "@/components/SourceCite";
 import { DualAxisChart } from "@/components/charts/DualAxisChart";
+import { RegimeLegend } from "@/components/charts/RegimeLegend";
 import { starnbergLk, transactions, rates, regimeMarks } from "@/data/timeseries";
 import { compositeTemperature } from "@/data/signals";
 
@@ -24,15 +25,16 @@ export default function HomePage() {
     <>
       <PageHeader
         kicker="Starnberger See · Private Buyer's Review, Vol. I"
-        title="A ten-year read on the lake — and why this decade is different."
+        title="Twenty-five years on the lake — and why this decade is different."
         standfirst={
           <>
             A research portal assembled for a single prospective primary-residence buyer in the €5–10M band.
-            Ten years of Gutachterausschuss data, Engel & Völkers and Sotheby's reports, Bundesbank rate
-            series, and the notable-transactions record — pulled into one editorial view.
+            A quarter-century of Gutachterausschuss data, Bundesbank rate series, Engel & Völkers and
+            Sotheby's reports, Destatis construction-cost indices, and the notable-transactions record —
+            pulled into one editorial view.
           </>
         }
-        meta={<>Data as of Q1 2026 · One-time snapshot · Open-source public sources only</>}
+        meta={<>Data as of Q1 2026 · One-time snapshot · 2000–2025 on every headline series</>}
       />
 
       <Section>
@@ -41,7 +43,7 @@ export default function HomePage() {
           <KpiCard
             label="Lakefront villa median (LK Starnberg)"
             value="€9.7M"
-            sub="Trophy segment already above 2022 peak; rate shock barely scratched Seelage."
+            sub="Bullish: already above 2022 peak (€9.2M) while the rest of DE residential is still −7% from peak. Trophy lake didn't participate in the 2023 shock."
             series={starnbergLk.map((r) => (r.waterfrontVillaM as number) || 0)}
             tone="bull"
             chipLabel="Bullish"
@@ -49,7 +51,7 @@ export default function HomePage() {
           <KpiCard
             label="LK Starnberg SFH (€/m²)"
             value="€9.2k"
-            sub="Town-SFH segment reset 2024; recovering mid-single-digit YoY."
+            sub="Neutral: town segment reset −33% in 2024 (distressed sellers + downzoning noise) and has recovered mid-single-digit YoY. No trajectory signal yet."
             series={starnbergLk.map((r) => (r.starnbergSfhEurPerM2 as number) || 0)}
             tone="neutral"
             chipLabel="Neutral"
@@ -58,7 +60,7 @@ export default function HomePage() {
             label="Bauzins 10Y fix"
             value="3.4%"
             unit=""
-            sub="Peak 2022 3.9% → 2025 3.4%. Spread to Bund at 5-yr low."
+            sub="Tailwind: below the 2000–2014 average of 4.2%. Bauzins-Bund spread at ~50 bp — a 20-year low. Banks have risk appetite."
             series={rates.map((r) => (r.bauzins10y as number) || 0)}
             tone="bull"
             chipLabel="Tailwind"
@@ -66,8 +68,8 @@ export default function HomePage() {
           <KpiCard
             label="Dwell time (LK Starnberg)"
             value="125d"
-            sub="3× the 2020 regime. Buyers negotiate, except on direct-lakefront."
-            series={[60, 55, 50, 45, 40, 35, 35, 55, 120, 130, 125]}
+            sub="Caution: ~3.5× the 2018–2021 regime (35–45d). Buyers regain pricing leverage on inland LK; direct-lakefront stays <60d."
+            series={[105, 100, 88, 110, 100, 70, 65, 62, 60, 60, 60, 55, 50, 45, 40, 35, 35, 55, 120, 130, 125]}
             tone="bear"
             chipLabel="Caution"
           />
@@ -75,7 +77,13 @@ export default function HomePage() {
             label="Composite Temperature"
             value={(tempNow >= 0 ? "+" : "") + tempNow}
             unit="/100"
-            sub="Bifurcated: Seelage bullish, inland LK still neutral-bearish."
+            sub={
+              tempNow >= 20
+                ? `Seller's tape: ${tempNow}/100. 14-indicator composite net-positive — supply scarcity on Seelage offsets mainstream softness.`
+                : tempNow <= -20
+                ? `Buyer's tape: ${tempNow}/100. Composite net-negative.`
+                : `Balanced at ${tempNow}/100: bifurcated — Seelage bullish, mainstream LK/Munich ETW neutral.`
+            }
             tone={tempNow >= 20 ? "bull" : tempNow <= -20 ? "bear" : "neutral"}
             chipLabel={tempNow >= 20 ? "Seller's" : tempNow <= -20 ? "Buyer's" : "Balanced"}
           />
@@ -84,14 +92,14 @@ export default function HomePage() {
 
       <Section tone="parchment">
         <SectionHeader
-          kicker="Decade in one chart"
-          title="Lakefront prices, Kreis-wide sales, and the rate shock."
-          sub="Trophy lake prices kept rising right through the 2022–23 rate shock that reset mainstream German real estate. Transaction volumes in the Landkreis halved in 2023; they have since recovered most — but not all — of the 2021 peak."
+          kicker="Quarter-century in one chart"
+          title="Two decades of flat, one decade of lift-off, one shock — and the trophy lake held."
+          sub="2000–2010 was flat-to-down in nominal terms; Munich real estate underperformed German GDP. 2011–2022 was a decade of structural repricing on the back of ECB balance-sheet expansion and flight-to-German-quality. The 2022–23 rate shock reset mainstream tape by ~10%; the Starnberger See lakefront villa median is already at a new all-time high."
         />
         <Figure
-          caption="Lakefront villa median (€M) and Kreis median SFH (€M) vs Bundesbank Bauzins and Kreis transaction volume, 2015–2025."
+          caption="Lakefront villa median (€M) and Kreis median SFH (€M) vs Bundesbank Bauzins and Kreis transaction volume, 2000–2025."
           source={<SourceCite ids={["gutachter_lk_sta", "bundesbank_rates", "ev_starnberg", "ivd_sued"]} />}
-          note="Volume series from notarized Kreis contracts; rate is Bundesbank 10-year fixed residential."
+          note="Volume series from notarized Kreis contracts; rate is Bundesbank 10-year fixed residential. Pre-2010 lakefront villa median is an estimate reconstructed from ~2–3 press prints per year (±15 % precision flag)."
         >
           <DualAxisChart
             data={combined}
@@ -105,11 +113,12 @@ export default function HomePage() {
             ]}
             marks={regimeMarks.map((m) => ({ x: m.year, label: m.label, tone: m.tone }))}
           />
+          <RegimeLegend />
         </Figure>
       </Section>
 
       <Section>
-        <SectionHeader kicker="Executive summary" title="Thesis in three paragraphs." />
+        <SectionHeader kicker="Executive summary" title="Thesis in four paragraphs." />
         <Prose className="drop-cap">
           <p>
             The Starnbergersee is the only German prime lake that combines daily-commute primary-residence
@@ -117,21 +126,31 @@ export default function HomePage() {
             away; the western lake communities sit on a forty-minute S-Bahn tether to Marienplatz; the
             international school catchment survives. At the €5–10M band, no other German lake simultaneously
             offers Gymnasium coverage, MIS, and driveway-to-lake primary-residence inventory. Tegernsee sells
-            the trophy but loses the commute; Ammersee is the 25–35% discount twin; Chiemsee is too far.
+            the trophy but loses the commute; Ammersee is the 25–35 % discount twin; Chiemsee is too far.
           </p>
           <p>
-            Structurally the lake is supply-locked. 35–45% of the shoreline is Wittelsbach, Kloster, state,
+            A <em>quarter-century</em> of data puts the current cycle in context. Germany's housing market
+            was flat-to-down 2000–2009 in nominal terms — the national HPI bottomed in 2003 and only
+            recovered its 2000 level by 2010. Munich broke out earlier, starting 2011, when the Euro crisis
+            triggered a flight-to-German-real-estate bid; Draghi's 2012 "whatever it takes" sealed it.
+            From 2011 to 2022 the Munich ETW median asking price roughly tripled, the HPI doubled, and
+            construction costs rose 46 %. The 2022 rate shock was the first regime reversal in a decade,
+            and it was arithmetically a mean reversion toward 2000–2014 averages — not a structural
+            re-rating down.
+          </p>
+          <p>
+            Structurally the lake is supply-locked. 35–45 % of the shoreline is Wittelsbach, Kloster, state,
             or conservation — permanently off-market. The remaining ~720–900 tradeable direct-lakefront
             parcels turn over 13–23 times per year. Permits for new SFH/villa in the Landkreis fell to a
-            ten-year low of 110 in 2024 (–42% vs 2017). Construction costs are up 61% cumulatively since
-            2015 — a long-dated floor under the existing Bestand. The inheritance wave (2025–2035) will see
-            tens of billions of lakefront and near-lake property change hands, but only ~15–25% of lakefront
-            is expected to reach the open market; the rest stays family-internal.
+            19-year low of 110 in 2024 (−51 % vs 2007 peak). Construction costs are up 115 % cumulatively
+            since 2000 — a long-dated floor under the existing Bestand. The inheritance wave (2025–2035) will
+            see tens of billions of lakefront and near-lake property change hands, but only ~15–25 % of
+            lakefront is expected to reach the open market; the rest stays family-internal.
           </p>
           <p>
-            Cyclically, the tape is bifurcated. The Seelage list-to-sale ratio is back to 98–103%; direct
+            Cyclically, the tape is bifurcated. The Seelage list-to-sale ratio is back to 98–103 %; direct
             lakefront Vermarktungsdauer is under 60 days on A-locations; Seelage months-of-supply is below
-            three. By contrast the broader Kreis and Munich ETW tape has 95–130-day dwell times, 35–40%
+            three. By contrast the broader Kreis and Munich ETW tape has 95–130-day dwell times, 35–40 %
             price-cut frequency, and months-of-supply around 5–10. The Bundesbank estimates Top-7
             overvaluation halved from its 2022 peak. <em>This is still a negotiable moment on the mainstream
             tape; it is not a negotiable moment at the waterline.</em>

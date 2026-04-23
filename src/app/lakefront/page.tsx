@@ -43,10 +43,26 @@ export default function LakefrontPage() {
       <Section>
         <SectionHeader kicker="Scarcity" title="Forty-nine kilometres of shore, eight hundred tradeable parcels." />
         <div className="grid md:grid-cols-4 gap-4">
-          <KpiCard label="Shoreline" value={`${shoreTotals.shoreKm.toFixed(1)} km`} sub="Total Gemeinde-measured" />
-          <KpiCard label="Protected (perpetual)" value={`~${shoreTotals.protectedSharePct}%`} sub="Wittelsbach, Kloster, state, NSG" tone="neutral" chipLabel="Off-market" />
-          <KpiCard label="Direct-lakefront parcels (private)" value={`${shoreTotals.parcelsMin.toLocaleString()}–${shoreTotals.parcelsMax.toLocaleString()}`} sub="~620–780 currently privately tradeable" />
-          <KpiCard label="Annual turnover" value={`${shoreTotals.turnoverMin}–${shoreTotals.turnoverMax}`} sub="Direct-lakefront transactions per year (8–16 typical; 2–5 are >€10M)" tone="bull" chipLabel="Tight" />
+          <KpiCard label="Shoreline" value={`${shoreTotals.shoreKm.toFixed(1)} km`} sub="Total Gemeinde-measured. Fixed quantity — cannot grow." />
+          <KpiCard
+            label="Protected (perpetual)"
+            value={`~${shoreTotals.protectedSharePct}%`}
+            sub="Off-market: Wittelsbach, Kloster, state forest, Naturschutzgebiet. This share doesn't trade — ever. It's the base of the scarcity premium."
+            tone="neutral"
+            chipLabel="Off-market"
+          />
+          <KpiCard
+            label="Direct-lakefront parcels (private)"
+            value={`${shoreTotals.parcelsMin.toLocaleString()}–${shoreTotals.parcelsMax.toLocaleString()}`}
+            sub="Our estimate of privately tradeable parcels after subtracting the protected share. ~720–900 is the universe a €10M+ buyer competes in."
+          />
+          <KpiCard
+            label="Annual turnover"
+            value={`${shoreTotals.turnoverMin}–${shoreTotals.turnoverMax}`}
+            sub="Tight: at ~2 % annual churn, a buyer with a specific Gemeinde preference waits 3–7 years for the right object. Only 2–5 of these transactions clear above €10M."
+            tone="bull"
+            chipLabel="Tight"
+          />
         </div>
         <Figure
           className="mt-6"

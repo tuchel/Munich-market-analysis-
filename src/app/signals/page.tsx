@@ -59,8 +59,10 @@ export default function SignalsPage() {
                 headline.
               </p>
               <p>
-                All sparklines are 2019-to-current. Each card cites its underlying series; hovering the
-                Sources footer gives the full bibliography entry.
+                Sparklines span 2005–2025 wherever the underlying series exists; newer instrument
+                metrics (ImmoScout demand index, Bundesbank overvaluation model) start 2015–2018. Each
+                card carries the headline reading <em>and</em> the "why this rating", so the chip in the
+                corner doesn't have to be interpreted alone.
               </p>
             </Prose>
           </div>
@@ -76,9 +78,9 @@ export default function SignalsPage() {
               const stroke = tone === "bull" ? "#2f6a3f" : tone === "bear" ? "#9e3838" : "#225d76";
               const fill = tone === "bull" ? "rgba(47,106,63,0.10)" : tone === "bear" ? "rgba(158,56,56,0.10)" : "rgba(34,93,118,0.12)";
               return (
-                <div key={s.id} className="bg-paper border border-rule rounded-md p-4 shadow-card flex flex-col gap-2">
+                <div key={s.id} className="bg-paper border border-rule rounded-md p-4 shadow-card flex flex-col gap-2.5">
                   <div className="flex items-start justify-between gap-2">
-                    <div>
+                    <div className="min-w-0">
                       <div className="kicker text-ink-500">{groupLabels[s.group]}</div>
                       <div className="serif text-[1.02rem] text-ink-900 leading-tight mt-0.5">{s.name}</div>
                     </div>
@@ -88,13 +90,22 @@ export default function SignalsPage() {
                     <div>
                       <div className="number-lg text-ink-900">{s.value}</div>
                       <div className="text-[0.7rem] text-ink-500 tabnums">
-                        5-yr range: {s.fiveYrLow || "—"} → {s.fiveYrHigh || "—"}
+                        {s.rangeLabel}: {s.rangeLow || "—"} → {s.rangeHigh || "—"}
                       </div>
                     </div>
-                    {s.series && <Sparkline values={s.series} stroke={stroke} fill={fill} />}
+                    {s.series && <Sparkline values={s.series} stroke={stroke} fill={fill} width={140} />}
                   </div>
                   <div className="text-[0.82rem] text-ink-700 leading-snug">{s.note}</div>
-                  <div className="mt-1 text-[0.65rem] uppercase tracking-wider text-ink-500">
+                  <div
+                    className="text-[0.78rem] text-ink-700 leading-snug border-l-2 pl-2.5"
+                    style={{ borderColor: stroke }}
+                  >
+                    <span className="uppercase tracking-wider text-[0.6rem] text-ink-500 block mb-0.5">
+                      Why {ratingLabel(s.rating).toLowerCase()}
+                    </span>
+                    {s.why}
+                  </div>
+                  <div className="mt-0.5 text-[0.65rem] uppercase tracking-wider text-ink-500">
                     Direction ·{" "}
                     <span className="tabnums text-ink-700">
                       {s.direction === "up" ? "↑ up" : s.direction === "down" ? "↓ down" : "→ flat"}

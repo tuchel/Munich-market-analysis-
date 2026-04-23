@@ -44,14 +44,14 @@ export function DualAxisChart({
   return (
     <div style={{ width: "100%", height }}>
       <ResponsiveContainer>
-        <ComposedChart data={data} margin={{ top: 24, right: 30, bottom: 8, left: 8 }}>
+        <ComposedChart data={data} margin={{ top: 48, right: 30, bottom: 8, left: 8 }}>
           <CartesianGrid stroke={chartPalette.grid} vertical={false} />
           <XAxis dataKey="year" {...axisStyle} />
           <YAxis yAxisId="left" {...axisStyle} tickFormatter={(v) => `${leftUnit === "€" ? "€" : ""}${v.toLocaleString()}${leftUnit !== "€" ? leftUnit : ""}`} width={72} />
           <YAxis yAxisId="right" orientation="right" {...axisStyle} tickFormatter={(v) => `${v.toLocaleString()}${rightUnit}`} width={60} />
           <Tooltip {...tooltipStyle} />
           <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} iconType="plainline" />
-          {marks?.map((m) => (
+          {marks?.map((m, i) => (
             <ReferenceLine
               key={String(m.x)}
               x={m.x}
@@ -64,6 +64,7 @@ export function DualAxisChart({
                 fill: markColor(m.tone),
                 fontSize: 10,
                 fontStyle: "italic",
+                dy: (i % 2 === 0 ? -34 : -18),
               }}
             />
           ))}

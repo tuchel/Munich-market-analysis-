@@ -39,12 +39,34 @@ export default function TrendsRates() {
       />
 
       <Section>
-        <SectionHeader kicker="Bauzins — the headline series" title="Three regimes in ten years." />
+        <SectionHeader
+          kicker="Bauzins — the headline series"
+          title="Five regimes in 25 years."
+          sub="The 10-yr fixed residential mortgage rate has seen five distinct regimes since 2000: the 5–6 % post-unification regime, the GFC rally to ~4.3 %, the Euro-crisis compression to ~2.7 % (2013), the 1.1–1.9 % ZIRP era (2014–2021), and the 3.4–3.9 % post-shock regime."
+        />
         <div className="grid md:grid-cols-4 gap-4 mb-6">
-          <KpiCard label="Bauzins 2019" value="1.10%" sub="Trough before 2020 rally" />
-          <KpiCard label="Bauzins peak 2022" value="3.90%" sub="ECB +450bp in 10 months" tone="bear" chipLabel="Peak" />
-          <KpiCard label="Bauzins 2025" value="3.40%" sub="Stabilized ~50bp spread to Bund" tone="bull" chipLabel="Tailwind" />
-          <KpiCard label="Bauzins–Bund spread" value="~50 bp" sub="5-yr low — banks risk-on for prime residential" tone="bull" chipLabel="Narrow" />
+          <KpiCard label="Bauzins 2000" value="6.20 %" sub="Pre-Euro-crisis baseline. Anchors any “what normal looks like” argument." />
+          <KpiCard
+            label="Bauzins peak 2022"
+            value="3.90 %"
+            sub="Peak of the rate shock: ECB +450 bp in 10 months. Triggered the sharpest German residential volume collapse since 2008."
+            tone="bear"
+            chipLabel="Peak"
+          />
+          <KpiCard
+            label="Bauzins 2025"
+            value="3.40 %"
+            sub="Tailwind: below the 2000–2014 long-run average (4.2 %). The current regime is not historically tight — it's historically average."
+            tone="bull"
+            chipLabel="Tailwind"
+          />
+          <KpiCard
+            label="Bauzins–Bund spread"
+            value="~50 bp"
+            sub="Narrow: 20-year low (was 195 bp in 2009 GFC). Spread compression means banks price residential credit close to sovereign risk — strong signal of lender risk appetite."
+            tone="bull"
+            chipLabel="Narrow"
+          />
         </div>
         <Figure
           caption="Bundesbank mortgage 10-yr fix, ECB MRO and Deposit Rates, 10Y Bund yield."

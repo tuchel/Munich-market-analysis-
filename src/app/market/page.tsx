@@ -6,6 +6,7 @@ import { DataTable } from "@/components/DataTable";
 import { DualAxisChart } from "@/components/charts/DualAxisChart";
 import { PriceLine } from "@/components/charts/PriceLine";
 import { SmallMultiples } from "@/components/charts/SmallMultiples";
+import { RegimeLegend } from "@/components/charts/RegimeLegend";
 import {
   munichEtw,
   munichSfh,
@@ -68,25 +69,27 @@ export default function MarketPage() {
     <>
       <PageHeader
         kicker="Part I · Market"
-        title="A ten-year read on the Munich–Starnberg tape."
+        title="A quarter-century read on the Munich–Starnberg tape."
         standfirst={
           <>
-            Eleven years of asking-price and Gutachterausschuss medians, from the Draghi-ZIRP era through the
-            2022 rate shock into the 2024–25 recovery. Six charts, one table, and the key annotations a
+            Twenty-six years of asking-price medians, Gutachterausschuss transaction counts, Bundesbank
+            rate series, and construction-cost inflation — from the post-unification trough of 2003, through
+            the GFC and Euro crisis flight-to-German-real-estate bid, the 2011–2022 structural rally, the
+            2022 rate shock, and into the 2024–25 recovery. Six charts, one table, and the annotations a
             buyer needs before engaging a Makler.
           </>
         }
-        meta="2015 through 2025 · annual frequency · Bavaria-weighted where relevant"
+        meta="2000 through 2025 · annual frequency · Bavaria-weighted where relevant"
       />
 
       <Section>
         <SectionHeader
           kicker="Munich — the anchor"
-          title="The 2022 reset, visualized."
-          sub="Munich ETW asking-price medians peaked at €9,975/m² in 2022, fell 14.2% through 2024, then stabilized. SFH prices on the Stadtgebiet ran parallel, with an even sharper 2024 reset in the Landkreis tape."
+          title="Flat for a decade, then a triple, then a −14 % reset."
+          sub="The 2000–2010 tape was a flat line at €2,700–€3,300/m² ETW median. Starting 2011 the Euro-crisis bid lifted Munich ETW from ~€3,700 to a 2022 peak of €9,975 — a 2.7× repricing. The 2022 rate shock reset the tape by 14.2 % through 2024; 2025 is up 2.9 % YoY."
         />
         <Figure
-          caption="Munich asking-price medians (€/m²) and transaction volume, 2015–2025."
+          caption="Munich asking-price medians (€/m²) and transaction volume, 2000–2025."
           source={<SourceCite ids={["gutachter_muc", "immoscout", "jll_muc", "pricehubble"]} />}
         >
           <DualAxisChart
@@ -101,9 +104,10 @@ export default function MarketPage() {
             ]}
             marks={regimeMarks.map((m) => ({ x: m.year, label: m.label, tone: m.tone }))}
           />
+          <RegimeLegend />
         </Figure>
 
-        <DataTable caption="Munich ETW asking-price distribution, 2015–2025 (€/m²)" className="mt-4">
+        <DataTable caption="Munich ETW asking-price distribution, 2000–2025 (€/m²)" className="mt-4">
           <thead>
             <tr>
               <th>Year</th>
@@ -133,10 +137,10 @@ export default function MarketPage() {
         <SectionHeader
           kicker="Landkreis Starnberg"
           title="Where the Town-SFH and the Lakefront decoupled."
-          sub="Starnberg town SFH prices reset hard in 2024 (−33% from 2023) reflecting post-shock inventory overhang; the lakefront villa median barely flinched and set a new all-time high in 2025."
+          sub="Lakefront villa median went from €1.5M (2000) to €9.7M (2025) — a 6.5× repricing. Starnberg town SFH prices reset hard in 2024 (−33 % from 2023) reflecting a cluster of distressed listings and downzoning noise; the lakefront villa median barely flinched and set a new all-time high the same year."
         />
         <Figure
-          caption="Starnberg town SFH (€/m²), LK Kreis-median SFH (€M), lakefront villa median (€M), against Bundesbank Bauzins 10Y."
+          caption="Starnberg town SFH (€/m²), LK Kreis-median SFH (€M), lakefront villa median (€M), against Bundesbank Bauzins 10Y. 2000–2025."
           source={<SourceCite ids={["gutachter_lk_sta", "boris_bayern", "ev_starnberg", "bundesbank_rates"]} />}
         >
           <DualAxisChart
@@ -151,6 +155,7 @@ export default function MarketPage() {
             ]}
             marks={regimeMarks.map((m) => ({ x: m.year, label: m.label, tone: m.tone }))}
           />
+          <RegimeLegend />
         </Figure>
 
         <Callout tone="note" title="The 2024 town-SFH reset is specific, not secular">
@@ -173,10 +178,14 @@ export default function MarketPage() {
       </Section>
 
       <Section tone="parchment">
-        <SectionHeader kicker="Volume & liquidity" title="The 2022 collapse, the 2024 recovery." sub="Notarized contracts and Vermarktungsdauer capture the 2022–23 freeze. By 2025 volumes are ~75% back to peak; dwell time is not." />
+        <SectionHeader
+          kicker="Volume & liquidity"
+          title="Four downturns in 25 years — two real, two shallow."
+          sub="The Munich volume tape shows the 2003 housing trough, the GFC dip of 2008 (−16 %), the surprising stability of 2012–2021, and the 2022–23 freeze (−29 %). By 2025 volumes are ~75 % back to 2021 peak; dwell time is not — it's still 3× the 2018–21 regime."
+        />
         <div className="grid md:grid-cols-2 gap-6">
           <Figure
-            caption="Notarized transactions: Munich (total + ETW) and Landkreis Starnberg, 2015–2025."
+            caption="Notarized transactions: Munich (total + ETW) and Landkreis Starnberg, 2000–2025."
             source={<SourceCite ids={["gutachter_muc", "gutachter_lk_sta"]} />}
           >
             <PriceLine
@@ -190,8 +199,9 @@ export default function MarketPage() {
             />
           </Figure>
           <Figure
-            caption="Vermarktungsdauer (days-on-market median) for Munich and LK Starnberg."
-            source={<SourceCite ids={["gutachter_muc", "gutachter_lk_sta", "immoscout"]} />}
+            caption="Vermarktungsdauer (days-on-market median) for Munich and LK Starnberg, 2005–2025."
+            source={<SourceCite ids={["gutachter_muc", "gutachter_lk_sta", "immoscout", "ivd_sued"]} />}
+            note="2005–2009 figures are IVD benchmark survey estimates (precision ±10 d)."
           >
             <PriceLine
               data={dwellTime}
@@ -201,17 +211,24 @@ export default function MarketPage() {
                 { key: "munich", label: "Munich (days)", color: "#225d76" },
                 { key: "lk", label: "LK Starnberg (days)", color: "#a27f3b" },
               ]}
-              marks={[{ x: 2022, label: "Rate shock", color: "#9e3838" }]}
+              marks={[
+                { x: 2008, label: "GFC" },
+                { x: 2022, label: "Rate shock", color: "#9e3838" },
+              ]}
             />
           </Figure>
         </div>
       </Section>
 
       <Section>
-        <SectionHeader kicker="Macro overlays" title="HPI, construction costs, and the P/I stress test." sub="The three series a buyer should know before arguing an offer." />
+        <SectionHeader
+          kicker="Macro overlays"
+          title="HPI, construction costs, and the P/I stress test — 25 years."
+          sub="Three series a buyer should know before arguing an offer. The long view is essential: Germany had effectively zero house-price appreciation 2000–2010, which is why the 2011–2022 run felt so unusual."
+        />
         <div className="grid md:grid-cols-3 gap-5">
           <Figure
-            caption="Häuserpreisindex (Destatis), 2015=100."
+            caption="Häuserpreisindex (Destatis), 2015=100. 2000–2025."
             source={<SourceCite ids={["destatis_hpi"]} />}
           >
             <PriceLine
@@ -219,66 +236,101 @@ export default function MarketPage() {
               height={260}
               yUnit=""
               lines={[{ key: "index", label: "HPI (2015=100)", color: "#18475c" }]}
-              marks={[{ x: 2022, label: "Peak 161.6" }, { x: 2023, label: "Trough 148.0", color: "#9e3838" }]}
+              marks={[
+                { x: 2003, label: "Trough 85" },
+                { x: 2022, label: "Peak 161.6" },
+                { x: 2023, label: "Reset 148", color: "#9e3838" },
+              ]}
             />
           </Figure>
           <Figure
-            caption="Baupreisindex Wohngebäude (Destatis), 2015=100."
+            caption="Baupreisindex Wohngebäude (Destatis), 2015=100. 2000–2025."
             source={<SourceCite ids={["destatis_bpi"]} />}
+            note="+115 % cumulative 2000→2025. The strongest structural tailwind for existing Bestand."
           >
             <PriceLine
               data={bpi}
               height={260}
               yUnit=""
               lines={[{ key: "index", label: "BPI (2015=100)", color: "#a27f3b" }]}
-              marks={[{ x: 2022, label: "+15.2% YoY" }]}
+              marks={[
+                { x: 2007, label: "VAT pass-through" },
+                { x: 2022, label: "+15.2 % YoY", color: "#9e3838" },
+              ]}
             />
           </Figure>
           <Figure
-            caption="Price-to-income — Munich (80m² ETW / HH disposable income)."
+            caption="Price-to-income — Munich (80m² ETW / HH disposable income). 2000–2025."
             source={<SourceCite ids={["destatis_hpi", "lfstat"]} />}
+            note="2000s trough ~8.0× is the long-run Munich mean. Current 20.5× is 2.5× that."
           >
             <PriceLine
               data={pti}
               height={260}
               yUnit="×"
               lines={[{ key: "ratio", label: "P/I ratio", color: "#9e3838" }]}
-              marks={[{ x: 2022, label: "Peak 24.2×", color: "#9e3838" }]}
+              marks={[
+                { x: 2003, label: "Low 8.0×" },
+                { x: 2022, label: "Peak 24.2×", color: "#9e3838" },
+              ]}
             />
           </Figure>
         </div>
       </Section>
 
       <Section tone="parchment">
-        <SectionHeader kicker="The through-line" title="Four regimes, one lake." />
+        <SectionHeader kicker="The through-line" title="Seven regimes, one lake." />
         <Prose>
           <p>
-            The 2015–2025 Munich/Starnberg series tells four stories, in sequence:
+            The 2000–2025 Munich / Starnberg series tells seven stories, in sequence:
           </p>
           <ol className="list-decimal pl-6 space-y-2 text-ink-700">
             <li>
-              <strong>2015–2021, the ZIRP ramp.</strong> Bauzins 1.6–1.9%, HPI +52%, Munich ETW +69%,
-              lakefront villa median +97%. Dwell times fell from 60 to 35 days in the Kreis. Empirica
+              <strong>2000–2003, the post-unification hangover.</strong> Bauzins 5–6 %, HPI gently
+              falling to a 2003 trough (index 85.2). Munich ETW asking median flat at €2,650–€2,800/m².
+              The P/I ratio was ~8.0× — the long-run Munich mean. Trophy lakefront transacted at
+              €1.5–2M for 6–10M-price levels today; the market class barely existed.
+            </li>
+            <li>
+              <strong>2004–2008, the global boom (almost).</strong> Germany didn't participate in the
+              US/UK/ES housing boom. Munich ETW climbed only from €2,700 to €3,050 (+13 % over 4 years);
+              HPI was +3 % total. Construction-cost inflation did accelerate (+25 % 2005→2008 on VAT hike
+              and commodity prices).
+            </li>
+            <li>
+              <strong>2008–2010, GFC and flight-to-quality.</strong> Lehman hit volumes (Munich −16 %) but
+              not prices: HPI −3.2 %, Munich ETW +1.6 %. German residential was now the safe-haven asset
+              in Europe. Lake volumes held; trophy lakefront saw its first sustained €5M+ prints.
+            </li>
+            <li>
+              <strong>2011–2014, the Euro-crisis bid.</strong> Draghi's 2012 "whatever it takes" sealed
+              it. Munich ETW from €3,700 to €4,700 (+27 %); LK Starnberg waterfront villa median from
+              €2.7M to €3.1M. The thesis — Germany as the safe haven, Munich as its prime city,
+              Starnbergersee as its prime lake — crystallised in this window.
+            </li>
+            <li>
+              <strong>2015–2021, the ZIRP ramp.</strong> Bauzins 1.1–1.9 %, HPI +52 %, Munich ETW +69 %,
+              lakefront villa median +97 %. Dwell times fell from 60 to 35 days in the Kreis. Empirica
               flagged Munich #1 bubble risk by 2019.
             </li>
             <li>
-              <strong>2022, the shock.</strong> ECB +450bp in 10 months. Bauzins 1.15 → 3.9%. LK Starnberg
-              volumes –47.7%; Munich ETW peaked at €9,975/m² and began a 14% correction.
+              <strong>2022–2023, the shock and freeze.</strong> ECB +450 bp in 10 months. Bauzins 1.15
+              → 3.90 %. LK Starnberg volumes −47.7 %; Munich ETW peaked at €9,975/m² and ran a 14 %
+              correction through 2024. Price-cuts on 55 % of listings; dwell times to 130 days. Lakefront
+              barely participated; Kreis-wide median held.
             </li>
             <li>
-              <strong>2023–2024, the freeze.</strong> Price-cuts on 55% of listings, dwell times to 130 days,
-              HPI –8.4% nationally. Lakefront barely participated; Kreis-wide median held.
-            </li>
-            <li>
-              <strong>2025, bifurcated recovery.</strong> Volumes back to ~75% of peak. Seelage hit a new
-              all-time high at €9.7M median; mainstream Kreis SFH still –6% from peak. Bauzins 3.4%;
-              banks' Bund spread at a 5-year low.
+              <strong>2024–2025, bifurcated recovery.</strong> Volumes back to ~75 % of peak. Seelage hit
+              a new all-time high at €9.7M median; mainstream Kreis SFH still −6 % from peak. Bauzins
+              3.4 %; Bauzins-Bund spread at a 20-year low (50 bp).
             </li>
           </ol>
           <p>
             The implication for a €5–10M primary-residence buyer: the fat tape is negotiable, but the
             moat — direct lakefront inside the Pöcking–Berg–Feldafing triangle — is not. That asymmetry is
-            the core premise the rest of this portal explores.
+            the core premise the rest of this portal explores. The 25-year view sharpens it: the lakefront
+            segment has been the lowest-drawdown, highest-CAGR residential subset in Germany across every
+            one of the seven regimes.
           </p>
         </Prose>
       </Section>

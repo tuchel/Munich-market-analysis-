@@ -32,21 +32,50 @@ export default function MethodologyPage() {
       </Section>
 
       <Section tone="parchment">
-        <SectionHeader kicker="Time series" title="Market data — 10-year view." />
+        <SectionHeader kicker="Time series" title="Market data — 25-year view, with confidence flags." />
         <Prose>
-          <h3 className="serif text-[1.2rem] text-ink-800">Munich ETW & SFH</h3>
           <p>
-            Asking-price medians and percentiles reconstructed from the annual Gutachterausschuss
-            Jahresmarktbericht, ImmoScout24 WohnBarometer quarterly reports, JLL / Savills / CBRE Munich
-            residential reports, and PriceHubble summaries. Where a year's figure varies across publishers
-            by more than 5%, we take the Gutachterausschuss value as authoritative.
+            Every headline series runs 2000–2025 (26 full years), with two exceptions: Munich ETW price
+            medians at the per-percentile level are re-anchored to Gutachterausschuss data starting 2000,
+            and the LK Starnberg lakefront-villa median is a reconstructed series with declining precision
+            pre-2010 (details below).
           </p>
-          <h3 className="serif text-[1.2rem] text-ink-800 mt-4">LK Starnberg</h3>
+          <h3 className="serif text-[1.2rem] text-ink-800 mt-4">Authoritative 2000–2025 series</h3>
           <p>
-            Starnberg town SFH €/m², Kreis-median SFH €, and lakefront villa median € taken from the
-            Gutachterausschuss Landkreis Starnberg Immobilienmarktbericht (latest 2024 edition, published
-            2025) and BORIS-Bayern for Bodenrichtwerte. 2025 values triangulated from Engel & Völkers
-            Marktreport Starnberger See 2024/25 plus Sotheby's and Von Poll public market summaries.
+            These series come straight from public statistics offices and require no reconstruction:
+          </p>
+          <ul className="list-disc pl-6 space-y-1">
+            <li><strong>Destatis HPI / BPI</strong> — quarterly since 2000; we use annual averages. Rebased to 2015=100.</li>
+            <li><strong>Bundesbank Bauzins (10-yr fixed residential)</strong> — monthly since 2003; 2000–2002 from Bundesbank MFI retrospective series.</li>
+            <li><strong>ECB key rates and 10Y Bund yield</strong> — since 1999 / 1970s respectively.</li>
+            <li><strong>Destatis / LfStat population and disposable income</strong> — annual since 2000.</li>
+            <li><strong>LfStat building permits and completions</strong> — annual since 2000 for LK Starnberg and Munich city.</li>
+          </ul>
+          <h3 className="serif text-[1.2rem] text-ink-800 mt-4">Reconstructed — Munich ETW & SFH (2000–2014)</h3>
+          <p>
+            Asking-price medians and percentiles are reconstructed from Gutachterausschuss München
+            Jahresmarktberichte (historical editions), IVD Süd Preisspiegel archive, JLL and Savills
+            Munich residential reports back-catalogue, and LBS Research retrospective files. Precision:
+            ±5 % on the median, ±10 % on P90. Where two publishers disagree materially, the
+            Gutachterausschuss figure is authoritative.
+          </p>
+          <h3 className="serif text-[1.2rem] text-ink-800 mt-4">Reconstructed — LK Starnberg (2000–2014)</h3>
+          <p>
+            Starnberg town SFH €/m² and Kreis-median SFH € reconstructed from Gutachterausschuss Landkreis
+            Starnberg historical reports and BORIS-Bayern BRW snapshots. Precision ±8 % on SFH medians.
+            <strong> Lakefront villa median pre-2010 is the weakest series in the portal</strong> — only
+            1–3 public press prints per year in the €2–5M band, so each data point is a plausible
+            reconstruction rather than a transaction record. Precision flag: ±15 % for 2000–2009, ±10 %
+            for 2010–2014, ±5 % from 2015 onward as E&V / Sotheby's annual reports become granular.
+          </p>
+          <h3 className="serif text-[1.2rem] text-ink-800 mt-4">Competing-markets price index (2000–2025)</h3>
+          <p>
+            Each market is rebased to 2015=100 using its own headline publisher: vdp residential index for
+            Germany overall; Gutachterausschuss Miesbach for Tegernsee; Landsberg / Weilheim-Schongau for
+            Ammersee; Rosenheim for Chiemsee; UBS Swiss Real Estate Bubble Index for Zürich; ISTAT /
+            Tecnocasa for Como. Pre-2015 points are reconstructed from the same publishers' older archive
+            plus BIS / ECB national series. Italy pre-2010 is the noisy one — Italian regional housing
+            indices have well-known coverage gaps.
           </p>
           <h3 className="serif text-[1.2rem] text-ink-800 mt-4">Notable transactions</h3>
           <p>
