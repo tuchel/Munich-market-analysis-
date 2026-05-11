@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { MarketBarChart, MarketLineChart, palette } from "@/components/charts/dynamic";
+import { MarketBarChart, MarketLineChart, palette } from "@/components/charts/Chart";
 
 export const metadata = {
   title: "Trends · Demographics & Supply — Starnberger See Property Review",
 };
 
-export const dynamic = "force-dynamic";
 
 const POP_INCOME = [
   { year: 2015, lkPop: 133600, lkHhK: 62.4, lkDispK: 31.1, deHhK: 39.8 },

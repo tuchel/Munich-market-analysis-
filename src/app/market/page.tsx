@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MarketLineChart, MarketBarChart, palette } from "@/components/charts/dynamic";
+import { MarketLineChart, MarketBarChart, palette } from "@/components/charts/Chart";
 import {
   MUNICH_ETW, MUNICH_SFH, LK_STARNBERG, TRANSACTIONS, DWELL, RATES, INDICES, PRICE_INCOME, COMPOSITE_INDEX,
 } from "@/lib/data/macro";
@@ -10,7 +10,6 @@ export const metadata = {
     "A ten-year view of the Munich and Landkreis Starnberg residential market: prices, transactions, dwell times, rates, construction costs, and affordability.",
 };
 
-export const dynamic = "force-dynamic";
 
 const ANNOTATIONS = [
   { from: 2016, to: 2016, label: "Brexit / ZIRP", fill: palette.goldLight },

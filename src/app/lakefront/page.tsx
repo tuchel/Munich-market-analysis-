@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MarketLineChart, palette } from "@/components/charts/dynamic";
+import { MarketLineChart, palette } from "@/components/charts/Chart";
 import { SHORE_GRADIENT_POINTS, PARCELS_BY_COMMUNITY, PREMIUM_MULTIPLES, NOTABLE_TRANSACTIONS, UFERSCHUTZ_REGIME } from "@/lib/data/lakefront";
 
 export const metadata = {
@@ -8,7 +8,6 @@ export const metadata = {
     "Scarcity, shore gradient, Uferschutz, Denkmalschutz, Seeuferweg case law and notable lakefront transactions on the Starnberger See.",
 };
 
-export const dynamic = "force-dynamic";
 
 function S({ kicker, title, children }: { kicker: string; title: string; children: React.ReactNode }) {
   return (

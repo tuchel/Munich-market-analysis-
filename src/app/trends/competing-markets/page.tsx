@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { MarketLineChart, palette } from "@/components/charts/dynamic";
+import { MarketLineChart, palette } from "@/components/charts/Chart";
 
 export const metadata = {
   title: "Trends · Competing Markets — Starnberger See Property Review",
 };
 
-export const dynamic = "force-dynamic";
 
 const COMPARE = [
   { metric: "Shore length (km)", sbg: "49", teg: "21", amm: "44", chm: "64", zur: "88", como: "170" },

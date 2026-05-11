@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { MarketLineChart, palette } from "@/components/charts/dynamic";
+import { MarketLineChart, palette } from "@/components/charts/Chart";
 import { RATES, PRICE_INCOME } from "@/lib/data/macro";
 
 export const metadata = {
   title: "Trends · Rates & Affordability — Starnberger See Property Review",
 };
 
-export const dynamic = "force-dynamic";
 
 function S({ kicker, title, children }: { kicker: string; title: string; children: React.ReactNode }) {
   return (
