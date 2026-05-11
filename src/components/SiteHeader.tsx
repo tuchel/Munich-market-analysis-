@@ -3,6 +3,7 @@ import Link from "next/link";
 const nav = [
   { href: "/", label: "Overview" },
   { href: "/property/klenzestrasse-22", label: "Property memo" },
+  { href: "/property/klenzestrasse-22/negotiation", label: "Negotiation" },
   { href: "/market", label: "10-Year Market" },
   { href: "/communities", label: "Communities" },
   { href: "/lakefront", label: "Lakefront Premium" },

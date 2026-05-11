@@ -89,6 +89,15 @@ export default function Page() {
         </div>
       </header>
 
+      {/* Deep-dive CTA */}
+      <div className="mt-6 mb-2 border-l-4 border-gold-500 bg-parchment/60 pl-4 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div>
+          <div className="kicker mb-1">Companion analysis</div>
+          <div className="serif text-[1.05rem] text-ink-900">Exhaustive negotiation pricing strategy — 18 sections, scripts, BATNA, probability tree, Kaufvertrag clauses.</div>
+        </div>
+        <Link href="/property/klenzestrasse-22/negotiation" className="serif text-lake-600 text-[1rem] hover:underline whitespace-nowrap">Open the deep-dive →</Link>
+      </div>
+
       {/* EXEC SUMMARY */}
       <section className="callout">
         <div className="callout-title">Executive summary</div>
