@@ -1,133 +1,143 @@
-import Link from "next/link";
-import { SIGNALS, SIGNAL_SUMMARY, type Reading } from "@/lib/data/signals";
+import { PageHeader, SectionHeader } from "@/components/PageHeader";
+import { Section, Prose } from "@/components/Section";
+import { Figure, Callout } from "@/components/Callout";
+import { SourceCite } from "@/components/SourceCite";
+import { Chip, ratingTone, ratingLabel } from "@/components/Chip";
+import { Sparkline } from "@/components/Sparkline";
+import { CompositeGauge } from "@/components/charts/CompositeGauge";
+import { signals, compositeTemperature } from "@/data/signals";
 
-export const metadata = {
-  title: "Signals — Starnberger See Property Review",
-  description:
-    "Strength and weakness scorecard — 15 indicators rated bullish / neutral / bearish, with rationale and source.",
+const groupLabels: Record<string, string> = {
+  supply: "Supply",
+  demand: "Demand",
+  macro: "Macro",
+  sentiment: "Sentiment",
 };
 
-const readingMeta: Record<Reading, { chip: string; label: string; symbol: string }> = {
-  bull: { chip: "chip chip-bull", label: "Bullish", symbol: "▲" },
-  "bull-lakefront": { chip: "chip chip-bull", label: "Bull (lakefront)", symbol: "▲" },
-  neutral: { chip: "chip chip-neutral", label: "Neutral", symbol: "■" },
-  bear: { chip: "chip chip-bear", label: "Bearish", symbol: "▼" },
-};
+export default function SignalsPage() {
+  const grouped = signals.reduce<Record<string, typeof signals>>((acc, s) => {
+    (acc[s.group] ||= []).push(s);
+    return acc;
+  }, {});
 
-const CATEGORIES = ["Supply", "Demand", "Financing", "Sentiment", "Macro", "Structural"] as const;
+  const temp = compositeTemperature();
+  const allIds = Array.from(new Set(signals.flatMap((s) => s.sourceIds)));
 
-export default function Page() {
   return (
-    <article className="canvas py-10 md:py-16">
-      <div className="kicker mb-3">Strength &amp; weakness scorecard</div>
-      <h1 className="serif text-display-lg text-ink-900 leading-[1.04] tracking-tight">Market signals</h1>
-      <p className="serif italic text-ink-600 text-[1.12rem] mt-3 max-w-2xl leading-relaxed">
-        15 indicators across supply, demand, financing, sentiment, macro and structural channels.
-        Each rated bull / neutral / bear with a quantified current reading, 5-year range, direction
-        and named source. The composite is a bifurcated recovery — lakefront bullish, mid-segment
-        neutral, leveraged sub-luxury bearish.
-      </p>
+    <>
+      <PageHeader
+        kicker="Part IV · Signals"
+        title="Fourteen indicators. One composite."
+        standfirst={
+          <>
+            A single scorecard of the tape — supply, demand, macro, sentiment — plus a composite
+            temperature gauge. Each card shows the value, a five-year range, direction of travel, and a
+            one-line reading.
+          </>
+        }
+      />
 
-      {/* COMPOSITE */}
-      <div className="mt-10 grid md:grid-cols-3 gap-3">
-        <div className="border-l-4 border-bull/60 bg-bull/5 rounded-md p-5">
-          <div className="kicker mb-1">Bullish readings</div>
-          <div className="number-xl text-bull tabnums">{SIGNAL_SUMMARY.totalBull}</div>
-          <div className="text-xs text-ink-500 mt-1">of {SIGNALS.length} indicators</div>
-        </div>
-        <div className="border-l-4 border-gold-500/60 bg-gold-400/5 rounded-md p-5">
-          <div className="kicker mb-1">Neutral readings</div>
-          <div className="number-xl text-gold-600 tabnums">{SIGNAL_SUMMARY.totalNeutral}</div>
-          <div className="text-xs text-ink-500 mt-1">of {SIGNALS.length} indicators</div>
-        </div>
-        <div className="border-l-4 border-bear/60 bg-bear/5 rounded-md p-5">
-          <div className="kicker mb-1">Bearish readings</div>
-          <div className="number-xl text-bear tabnums">{SIGNAL_SUMMARY.totalBear}</div>
-          <div className="text-xs text-ink-500 mt-1">of {SIGNALS.length} indicators</div>
-        </div>
-      </div>
-
-      <div className="callout mt-6">
-        <div className="callout-title">Composite read</div>
-        <p className="text-[0.96rem] leading-relaxed">{SIGNAL_SUMMARY.composite}</p>
-      </div>
-
-      {/* SIGNALS BY CATEGORY */}
-      {CATEGORIES.map((cat) => {
-        const items = SIGNALS.filter((s) => s.category === cat);
-        if (!items.length) return null;
-        return (
-          <section key={cat} className="py-8 border-t border-rule mt-2">
-            <div className="kicker mb-2">{cat}</div>
-            <h2 className="serif text-[1.5rem] text-ink-900 mb-4">{cat} signals</h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              {items.map((s) => {
-                const meta = readingMeta[s.reading];
-                return (
-                  <div key={s.id} className="border border-rule rounded-md p-4 bg-paper">
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={meta.chip}>{meta.symbol} {meta.label}</span>
-                        <span className="kicker">{s.direction === "↑" ? "Rising" : s.direction === "↓" ? "Falling" : "Stable"}</span>
-                      </div>
-                    </div>
-                    <div className="serif text-[1.05rem] text-ink-900 leading-tight">{s.name}</div>
-                    <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-                      <div>
-                        <div className="kicker mb-0.5">Current</div>
-                        <div className="tabnums text-ink-800 serif">{s.current}</div>
-                      </div>
-                      <div>
-                        <div className="kicker mb-0.5">5-yr range</div>
-                        <div className="tabnums text-ink-700">{s.fiveYrRange}</div>
-                      </div>
-                    </div>
-                    <p className="text-sm text-ink-700 mt-3 leading-relaxed">{s.rationale}</p>
-                    <div className="source-cite mt-2">Source: {s.source}</div>
-                  </div>
-                );
-              })}
+      <Section>
+        <div className="grid md:grid-cols-3 gap-6 items-start">
+          <div className="md:col-span-1 bg-paper border border-rule rounded-md p-4 shadow-card">
+            <CompositeGauge value={temp} />
+            <div className="text-sm text-ink-700 leading-relaxed mt-3">
+              Composite score rolls up 14 indicators into a -100 (deep bear) to +100 (deep bull) index.
+              Today's reading is <strong>{temp > 0 ? "+" : ""}{temp}</strong> — a neutral-to-mildly-
+              constructive tape, masked by bifurcation between direct-lakefront (bullish) and the mainstream
+              LK/Munich ETW market (neutral).
             </div>
-          </section>
-        );
-      })}
-
-      {/* FULL TABLE */}
-      <section className="py-10 border-t border-rule">
-        <div className="kicker mb-2">Composite table</div>
-        <h2 className="serif text-[1.5rem] text-ink-900 mb-4">All signals at a glance</h2>
-        <div className="overflow-x-auto">
-          <table className="editorial">
-            <thead>
-              <tr><th>Signal</th><th>Category</th><th>Reading</th><th>Current</th><th>5-yr range</th><th>Direction</th></tr>
-            </thead>
-            <tbody>
-              {SIGNALS.map((s) => {
-                const meta = readingMeta[s.reading];
-                return (
-                  <tr key={s.id}>
-                    <td className="serif">{s.name}</td>
-                    <td className="text-xs uppercase tracking-wider text-ink-600">{s.category}</td>
-                    <td><span className={meta.chip}>{meta.label}</span></td>
-                    <td className="tabnums">{s.current}</td>
-                    <td className="tabnums text-ink-600">{s.fiveYrRange}</td>
-                    <td className="text-center text-ink-700">{s.direction}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          </div>
+          <div className="md:col-span-2">
+            <SectionHeader kicker="Reading" title="How to read this page." />
+            <Prose>
+              <p>
+                The dashboard separates supply (shelf life, construction, permits), demand (dwell time,
+                list-to-sale, rent), macro (rates, overvaluation), and sentiment. A single average hides
+                the lake's bifurcation: direct-lakefront is running tight while Munich-ETW and mainstream
+                LK SFH are balanced-to-soft. Read the grouped cards first; the composite is the
+                headline.
+              </p>
+              <p>
+                Sparklines span 2005–2025 wherever the underlying series exists; newer instrument
+                metrics (ImmoScout demand index, Bundesbank overvaluation model) start 2015–2018. Each
+                card carries the headline reading <em>and</em> the "why this rating", so the chip in the
+                corner doesn't have to be interpreted alone.
+              </p>
+            </Prose>
+          </div>
         </div>
-      </section>
+      </Section>
 
-      <div className="rule-double mt-12 pt-6 source-cite">
-        Cross-reference{" "}
-        <Link href="/market" className="underline">10-Year Market</Link>,{" "}
-        <Link href="/lakefront" className="underline">Lakefront Premium</Link> and{" "}
-        <Link href="/trends/rates" className="underline">Rates &amp; Affordability</Link> for the
-        underlying time-series. Full sources on{" "}
-        <Link href="/sources" className="underline">/sources</Link>.
-      </div>
-    </article>
+      {Object.entries(grouped).map(([group, items]) => (
+        <Section key={group} tone={group === "supply" || group === "macro" ? "parchment" : "paper"}>
+          <SectionHeader kicker={groupLabels[group]} title={`${items.length} ${groupLabels[group].toLowerCase()} indicators.`} />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {items.map((s) => {
+              const tone = ratingTone(s.rating);
+              const stroke = tone === "bull" ? "#2f6a3f" : tone === "bear" ? "#9e3838" : "#225d76";
+              const fill = tone === "bull" ? "rgba(47,106,63,0.10)" : tone === "bear" ? "rgba(158,56,56,0.10)" : "rgba(34,93,118,0.12)";
+              return (
+                <div key={s.id} className="bg-paper border border-rule rounded-md p-4 shadow-card flex flex-col gap-2.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="kicker text-ink-500">{groupLabels[s.group]}</div>
+                      <div className="serif text-[1.02rem] text-ink-900 leading-tight mt-0.5">{s.name}</div>
+                    </div>
+                    <Chip tone={tone}>{ratingLabel(s.rating)}</Chip>
+                  </div>
+                  <div className="flex items-end justify-between gap-3">
+                    <div>
+                      <div className="number-lg text-ink-900">{s.value}</div>
+                      <div className="text-[0.7rem] text-ink-500 tabnums">
+                        {s.rangeLabel}: {s.rangeLow || "—"} → {s.rangeHigh || "—"}
+                      </div>
+                    </div>
+                    {s.series && <Sparkline values={s.series} stroke={stroke} fill={fill} width={140} />}
+                  </div>
+                  <div className="text-[0.82rem] text-ink-700 leading-snug">{s.note}</div>
+                  <div
+                    className="text-[0.78rem] text-ink-700 leading-snug border-l-2 pl-2.5"
+                    style={{ borderColor: stroke }}
+                  >
+                    <span className="uppercase tracking-wider text-[0.6rem] text-ink-500 block mb-0.5">
+                      Why {ratingLabel(s.rating).toLowerCase()}
+                    </span>
+                    {s.why}
+                  </div>
+                  <div className="mt-0.5 text-[0.65rem] uppercase tracking-wider text-ink-500">
+                    Direction ·{" "}
+                    <span className="tabnums text-ink-700">
+                      {s.direction === "up" ? "↑ up" : s.direction === "down" ? "↓ down" : "→ flat"}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Section>
+      ))}
+
+      <Section>
+        <SectionHeader kicker="Takeaway" title="Bifurcated recovery." />
+        <Prose>
+          <p>
+            Eight of 14 indicators lean bullish or neutral-bullish; one is bearish-leaning (dwell time);
+            the rest are neutral. The composite of +{Math.max(temp, 0)}/100 hides the split: the Seelage
+            set (list-to-sale, Seelage months-of-supply, direct-lakefront dwell) reads bullish, while the
+            broader Kreis and Munich ETW tape is balanced. Two cross-cutting pieces put a long-dated floor
+            under all segments — <em>Munich permits at a 10-year low</em> and <em>construction costs +61%
+            cumulative</em>. Both favour existing Bestand over new-build substitutes.
+          </p>
+        </Prose>
+      </Section>
+
+      <Section tone="parchment">
+        <SectionHeader kicker="Full source stack" title="Every series, every publisher." />
+        <Figure caption="Combined source list across all 14 signals.">
+          <SourceCite ids={allIds} />
+        </Figure>
+      </Section>
+    </>
   );
 }

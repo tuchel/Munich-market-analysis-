@@ -1,144 +1,202 @@
 import Link from "next/link";
-import { COMMUNITIES, NORTH_VS_SOUTH } from "@/lib/data/communities";
-import { LakeMap } from "@/components/LakeMap";
+import { PageHeader, SectionHeader } from "@/components/PageHeader";
+import { Section, Prose } from "@/components/Section";
+import { Figure } from "@/components/Callout";
+import { DataTable } from "@/components/DataTable";
+import { SourceCite } from "@/components/SourceCite";
+import { LakeMap } from "@/components/charts/LakeMap";
+import { Chip, ratingTone, ratingLabel } from "@/components/Chip";
+import { lakeCommunities, munichPrime, fmtPrice } from "@/data/communities";
 
-export const metadata = {
-  title: "Communities — Starnberger See Property Review",
-  description:
-    "Profiles, prestige rank, price benchmarks and outlook for all eight Starnbergersee lakeshore communities.",
-};
-
-function outlookChip(o: string) {
-  const map: Record<string, string> = {
-    "bullish": "chip chip-bull",
-    "neutral-bullish": "chip chip-bull",
-    "neutral": "chip chip-neutral",
-    "neutral-bearish": "chip chip-bear",
-    "bearish": "chip chip-bear",
-  };
-  return map[o] ?? "chip chip-neutral";
-}
-
-const sorted = [...COMMUNITIES].sort((a, b) => a.prestigeRank - b.prestigeRank);
-
-export default function Page() {
+export default function CommunitiesPage() {
   return (
-    <article className="canvas py-10 md:py-16">
-      <div className="kicker mb-3">Per-community deep dives</div>
-      <h1 className="serif text-display-lg text-ink-900 leading-[1.04] tracking-tight">Communities</h1>
-      <p className="serif italic text-ink-600 text-[1.12rem] mt-3 max-w-2xl leading-relaxed">
-        Eight municipalities ring the Starnberger See. Prestige rank, price tiers, lakefront parcel
-        scarcity, schools, commute, Hebesätze and character — sortable on a single map and
-        rankable in a single table. Click a community for the full dossier.
-      </p>
+    <>
+      <PageHeader
+        kicker="Part II · Communities"
+        title="Eight lake Gemeinden. Six Munich prime districts."
+        standfirst={
+          <>
+            One page per community on the lake; a tighter comparison for the six Munich districts a €5–10M
+            buyer would realistically weigh against the Seelage move. Rankings are derived from the
+            research dossier; outlook ratings are judgment calls annotated with the underlying drivers.
+          </>
+        }
+        meta="Figures as of 2025 · Prices are medians of the SFH segment unless noted"
+      />
 
-      {/* MAP */}
-      <div className="mt-10">
-        <LakeMap />
-      </div>
-
-      {/* NORTH vs SOUTH */}
-      <section className="py-10 border-t border-rule mt-10">
-        <div className="kicker mb-2">01 · The two halves</div>
-        <h2 className="serif text-[1.7rem] text-ink-900 mb-4">North vs South / East — at a glance</h2>
-        <div className="overflow-x-auto">
-          <table className="editorial">
-            <thead>
-              <tr>
-                <th>Metric</th>
-                <th>{NORTH_VS_SOUTH.north.label}</th>
-                <th>{NORTH_VS_SOUTH.south.label}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>Combined pop.</td><td className="tabnums">{NORTH_VS_SOUTH.north.pop.toLocaleString("en-US")}</td><td className="tabnums">{NORTH_VS_SOUTH.south.pop.toLocaleString("en-US")}</td></tr>
-              <tr><td>Median SFH €/m²</td><td className="tabnums">€ {NORTH_VS_SOUTH.north.sfhMedian.toLocaleString("en-US")}</td><td className="tabnums">€ {NORTH_VS_SOUTH.south.sfhMedian.toLocaleString("en-US")}</td></tr>
-              <tr><td>Luxury P90 €/m²</td><td className="tabnums">€ {NORTH_VS_SOUTH.north.luxuryP90Range[0]/1000}k – {NORTH_VS_SOUTH.north.luxuryP90Range[1]/1000}k</td><td className="tabnums">€ {NORTH_VS_SOUTH.south.luxuryP90Range[0]/1000}k – {NORTH_VS_SOUTH.south.luxuryP90Range[1]/1000}k</td></tr>
-              <tr><td>Direct-lake villa</td><td className="tabnums">€ {NORTH_VS_SOUTH.north.lakefrontVilla[0]}–{NORTH_VS_SOUTH.north.lakefrontVilla[1]}M</td><td className="tabnums">€ {NORTH_VS_SOUTH.south.lakefrontVilla[0]}–{NORTH_VS_SOUTH.south.lakefrontVilla[1]}M</td></tr>
-              <tr><td>Commute to Marienplatz</td><td className="tabnums">{NORTH_VS_SOUTH.north.commute[0]}–{NORTH_VS_SOUTH.north.commute[1]} min</td><td className="tabnums">{NORTH_VS_SOUTH.south.commute[0]}–{NORTH_VS_SOUTH.south.commute[1]} min</td></tr>
-              <tr><td>Gymnasium</td><td>{NORTH_VS_SOUTH.north.gymnasiums}</td><td>{NORTH_VS_SOUTH.south.gymnasiums}</td></tr>
-              <tr><td>International school</td><td>{NORTH_VS_SOUTH.north.intlSchool}</td><td>{NORTH_VS_SOUTH.south.intlSchool}</td></tr>
-              <tr><td>Hebesatz Gewerbe</td><td className="tabnums">{NORTH_VS_SOUTH.north.hebesatzRange[0]}–{NORTH_VS_SOUTH.north.hebesatzRange[1]} %</td><td className="tabnums">{NORTH_VS_SOUTH.south.hebesatzRange[0]} %</td></tr>
-              <tr><td>Grundsteuer B</td><td className="tabnums">{NORTH_VS_SOUTH.north.grundRange[0]}–{NORTH_VS_SOUTH.north.grundRange[1]} %</td><td className="tabnums">{NORTH_VS_SOUTH.south.grundRange[0]}–{NORTH_VS_SOUTH.south.grundRange[1]} %</td></tr>
-              <tr><td>5-yr trend SFH</td><td className="tabnums">+{NORTH_VS_SOUTH.north.trend5yr[0]}–{NORTH_VS_SOUTH.north.trend5yr[1]} %</td><td className="tabnums">+{NORTH_VS_SOUTH.south.trend5yr[0]}–{NORTH_VS_SOUTH.south.trend5yr[1]} %</td></tr>
-              <tr><td>Character</td><td>{NORTH_VS_SOUTH.north.character}</td><td>{NORTH_VS_SOUTH.south.character}</td></tr>
-              <tr><td>Buyer skew</td><td>{NORTH_VS_SOUTH.north.skew}</td><td>{NORTH_VS_SOUTH.south.skew}</td></tr>
-              <tr><td>3–5 yr outlook</td><td>{NORTH_VS_SOUTH.north.outlook}</td><td>{NORTH_VS_SOUTH.south.outlook}</td></tr>
-            </tbody>
-          </table>
+      <Section>
+        <SectionHeader kicker="Map" title="The lake at a glance." sub="Color = outlook rating; size = relative trophy-segment intensity. Click a pin to deep-dive." />
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+          <LakeMap size={520} />
+          <Prose className="max-w-prose">
+            <p>
+              The Starnbergersee unfolds on a north-south axis. The S6 rail corridor — the decisive
+              commute artery — runs down the <em>west</em> shore from Starnberg through Pöcking, Feldafing,
+              Tutzing, Bernried, and Seeshaupt. The <em>east</em> shore has no commuter rail: Berg, Leoni,
+              and the Münsing estates at Ammerland/Ambach trade car-only quiet for the highest direct-lake
+              €/m² on the lake.
+            </p>
+            <p>
+              North-shore communities (Starnberg, Berg, Pöcking, Feldafing) concentrate ~68% of Gemeinde
+              population and the bulk of 5–10M transactions. South/east (Tutzing, Bernried, Seeshaupt,
+              Münsing) run at a 15–25% €/m² discount and deliver the lake's best Alpenblick.
+            </p>
+          </Prose>
         </div>
-      </section>
+      </Section>
 
-      {/* RANKING TABLE */}
-      <section className="py-10 border-t border-rule">
-        <div className="kicker mb-2">02 · Prestige ranking</div>
-        <h2 className="serif text-[1.7rem] text-ink-900 mb-4">Eight communities, ranked</h2>
-        <div className="overflow-x-auto">
-          <table className="editorial">
+      <Section tone="parchment">
+        <SectionHeader kicker="Lake comparison table" title="Eight lake Gemeinden — side by side." />
+        <Figure
+          caption="Population, SFH / Lakefront pricing, tax, commute, schools, and outlook — 2025."
+          source={<SourceCite ids={["gutachter_lk_sta", "boris_bayern", "ev_starnberg", "lfstat", "mvv_s6", "municipal_sites"]} />}
+        >
+          <DataTable dense>
             <thead>
               <tr>
-                <th>#</th>
                 <th>Community</th>
-                <th>Shore</th>
-                <th>Pop.</th>
-                <th>SFH €/m²</th>
-                <th>Lux P90 €/m²</th>
-                <th>Lakefront villa</th>
-                <th>Commute</th>
-                <th>Hebesatz B</th>
+                <th className="text-right">Pop</th>
+                <th className="text-right">SFH €/m²</th>
+                <th className="text-right">Lux P90 €/m²</th>
+                <th className="text-right">Lakefront villa €M</th>
+                <th className="text-right">5-yr SFH</th>
+                <th className="text-right">GewSt</th>
+                <th className="text-right">Commute min</th>
+                <th>Schools</th>
                 <th>Outlook</th>
               </tr>
             </thead>
             <tbody>
-              {sorted.map((c) => (
-                <tr key={c.slug} className="cursor-pointer">
-                  <td className="tabnums text-ink-500">{c.prestigeRank}</td>
-                  <td><Link href={`/communities/${c.slug}`} className="serif text-ink-900 hover:underline">{c.name}</Link></td>
-                  <td className="text-xs text-ink-600 uppercase tracking-wider">{c.shore}</td>
-                  <td className="tabnums">{c.pop.toLocaleString("en-US")}</td>
-                  <td className="tabnums">€ {c.sfhPerM2.toLocaleString("en-US")}</td>
-                  <td className="tabnums">€ {(c.luxuryP90[0]/1000).toFixed(0)}–{(c.luxuryP90[1]/1000).toFixed(0)}k</td>
-                  <td className="tabnums">€ {c.lakefrontVilla[0]}–{c.lakefrontVilla[1]}M</td>
-                  <td className="tabnums">{c.commuteMinSBahn ? `${c.commuteMinSBahn[0]}–${c.commuteMinSBahn[1]} min` : "—"}</td>
-                  <td className="tabnums">{c.hebesatzGrund} %</td>
-                  <td><span className={outlookChip(c.outlook)}>{c.outlook.replace("-", " ")}</span></td>
+              {lakeCommunities.map((c) => (
+                <tr key={c.slug}>
+                  <td>
+                    <Link href={`/communities/${c.slug}`} className="serif font-medium hover:underline">
+                      {c.name}
+                    </Link>
+                    {c.subtitle && <div className="text-[0.7rem] text-ink-500 leading-snug">{c.subtitle}</div>}
+                  </td>
+                  <td className="text-right tabnums">{c.population.toLocaleString()}</td>
+                  <td className="text-right tabnums">€{c.sfhMedianEurPerM2.toLocaleString()}</td>
+                  <td className="text-right tabnums">
+                    €{c.luxP90PerM2Low?.toLocaleString()}–€{c.luxP90PerM2High?.toLocaleString()}
+                  </td>
+                  <td className="text-right tabnums">
+                    €{c.lakefrontVillaMinM}–€{c.lakefrontVillaMaxM}M
+                  </td>
+                  <td className="text-right tabnums">+{Math.round((c.fiveYrSfh || 0) * 100)}%</td>
+                  <td className="text-right tabnums">{c.gewStHebesatz}%</td>
+                  <td className="text-right tabnums">
+                    {c.commuteMinMin}–{c.commuteMaxMin}
+                    {c.sBahn ? "" : "*"}
+                  </td>
+                  <td className="text-[0.75rem]">
+                    {c.gymnasium ? "Gymnasium" : "—"}
+                    {c.internationalSchoolMin ? `, MIS ${c.internationalSchoolMin}′` : ""}
+                  </td>
+                  <td>
+                    <Chip tone={ratingTone(c.outlook)}>{ratingLabel(c.outlook)}</Chip>
+                  </td>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
-      </section>
+          </DataTable>
+        </Figure>
+        <div className="text-xs text-ink-500 mt-1 italic">* Car-only — no S-Bahn on this community.</div>
+      </Section>
 
-      {/* CHARACTER CARDS */}
-      <section className="py-10 border-t border-rule">
-        <div className="kicker mb-2">03 · Character cards</div>
-        <h2 className="serif text-[1.7rem] text-ink-900 mb-4">In one sentence each</h2>
-        <div className="grid md:grid-cols-2 gap-4">
-          {sorted.map((c) => (
-            <Link key={c.slug} href={`/communities/${c.slug}`} className="border border-rule rounded-md p-5 hover:bg-parchment/40 transition-colors">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="kicker">#{c.prestigeRank}</span>
-                <span className={outlookChip(c.outlook)}>{c.outlook.replace("-", " ")}</span>
+      <Section>
+        <SectionHeader kicker="Deep dives" title="Lake communities." />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {lakeCommunities.map((c) => (
+            <Link
+              key={c.slug}
+              href={`/communities/${c.slug}`}
+              className="block bg-paper border border-rule rounded-md p-5 hover:bg-parchment transition-colors shadow-card"
+            >
+              <div className="flex items-baseline justify-between gap-3">
+                <div>
+                  <div className="kicker text-gold-500">
+                    {c.shore ? `${c.shore} shore` : "—"} {c.prestigeRank ? `· #${c.prestigeRank}` : ""}
+                  </div>
+                  <div className="serif text-[1.3rem] text-ink-900">{c.name}</div>
+                  {c.subtitle && <div className="text-[0.8rem] text-ink-500">{c.subtitle}</div>}
+                </div>
+                <Chip tone={ratingTone(c.outlook)}>{ratingLabel(c.outlook)}</Chip>
               </div>
-              <div className="serif text-[1.3rem] text-ink-900">{c.name}</div>
-              <div className="text-sm text-ink-600 mt-1">{c.rationale}</div>
-              <div className="text-xs text-ink-500 mt-3 tabnums">
-                Lakefront villa <strong>€ {c.lakefrontVilla[0]}–{c.lakefrontVilla[1]}M</strong> · Lux P90{" "}
-                <strong>€ {(c.luxuryP90[0]/1000).toFixed(0)}–{(c.luxuryP90[1]/1000).toFixed(0)}k/m²</strong> · 5-yr trend{" "}
-                <strong>+{c.trend5yr.sfh} %</strong>
+              <p className="text-sm text-ink-700 mt-2 leading-relaxed">{c.thesis}</p>
+              <div className="grid grid-cols-3 gap-2 mt-4 text-xs tabnums">
+                <div>
+                  <div className="text-ink-500 text-[0.7rem]">SFH median</div>
+                  <div className="text-ink-900 font-medium">{fmtPrice(c.sfhMedianEurPerM2)}</div>
+                </div>
+                <div>
+                  <div className="text-ink-500 text-[0.7rem]">Lakefront villa</div>
+                  <div className="text-ink-900 font-medium">
+                    €{c.lakefrontVillaMinM}–{c.lakefrontVillaMaxM}M
+                  </div>
+                </div>
+                <div>
+                  <div className="text-ink-500 text-[0.7rem]">Commute</div>
+                  <div className="text-ink-900 font-medium">
+                    {c.commuteMinMin}–{c.commuteMaxMin} min
+                  </div>
+                </div>
               </div>
+              <div className="kicker mt-3 text-gold-500">Open brief →</div>
             </Link>
           ))}
         </div>
-      </section>
+      </Section>
 
-      <div className="rule-double mt-12 pt-6 source-cite">
-        Profiles synthesised from E&amp;V Marktreport Starnberger See, BORIS-Bayern Bodenrichtwerte 2024,
-        Gutachterausschuss LK Starnberg, LfStat Gemeindedaten, individual Gemeinde Haushaltssatzungen,
-        and SZ/Merkur archives. Full sources on{" "}
-        <Link href="/sources" className="underline">/sources</Link>; method on{" "}
-        <Link href="/methodology" className="underline">/methodology</Link>.
-      </div>
-    </article>
+      <Section tone="parchment">
+        <SectionHeader kicker="Munich prime" title="Six urban alternatives." sub="For completeness — the six Munich districts a €5–10M buyer would seriously weigh against the Seelage move." />
+        <Figure
+          caption="Munich prime districts, 2025 medians and rating."
+          source={<SourceCite ids={["gutachter_muc", "ev_munich", "sothebys_munich", "jll_muc"]} />}
+        >
+          <DataTable>
+            <thead>
+              <tr>
+                <th>District</th>
+                <th className="text-right">Pop</th>
+                <th className="text-right">SFH €/m²</th>
+                <th className="text-right">Lux P90 €/m²</th>
+                <th className="text-right">5-yr SFH</th>
+                <th className="text-right">Hebesatz</th>
+                <th>Outlook</th>
+              </tr>
+            </thead>
+            <tbody>
+              {munichPrime.map((c) => (
+                <tr key={c.slug}>
+                  <td>
+                    <span className="serif font-medium">{c.name}</span>
+                  </td>
+                  <td className="text-right tabnums">{c.population.toLocaleString()}</td>
+                  <td className="text-right tabnums">€{c.sfhMedianEurPerM2.toLocaleString()}</td>
+                  <td className="text-right tabnums">
+                    €{c.luxP90PerM2Low?.toLocaleString()}–€{c.luxP90PerM2High?.toLocaleString()}
+                  </td>
+                  <td className="text-right tabnums">+{Math.round((c.fiveYrSfh || 0) * 100)}%</td>
+                  <td className="text-right tabnums">{c.grundsteuerB}%</td>
+                  <td>
+                    <Chip tone={ratingTone(c.outlook)}>{ratingLabel(c.outlook)}</Chip>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+        </Figure>
+        <Prose className="mt-5">
+          <p>
+            <strong>Grünwald</strong> is the tax-optimised city substitute for lakefront (Hebesatz 240%),
+            but delivers neither view nor water; <strong>Bogenhausen</strong> is the historic villa answer
+            for buyers prioritising Gymnasium access and Isarnähe; <strong>Altstadt-Maxvorstadt</strong> is
+            trophy-penthouse territory where the €5–10M band buys 200–300 m² but no garden. At this ticket,
+            these are complements, not substitutes, to the Seelage decision.
+          </p>
+        </Prose>
+      </Section>
+    </>
   );
 }

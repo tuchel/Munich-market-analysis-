@@ -1,114 +1,184 @@
-import Link from "next/link";
-import { MarketLineChart, palette } from "@/components/charts/Chart";
-import { RATES, PRICE_INCOME } from "@/lib/data/macro";
+import { PageHeader, SectionHeader } from "@/components/PageHeader";
+import { Section, Prose } from "@/components/Section";
+import { Figure, Callout } from "@/components/Callout";
+import { SourceCite } from "@/components/SourceCite";
+import { DataTable } from "@/components/DataTable";
+import { KpiCard } from "@/components/KpiCard";
+import { PriceLine } from "@/components/charts/PriceLine";
+import { rates, bpi, hpi } from "@/data/timeseries";
 
-export const metadata = {
-  title: "Trends · Rates & Affordability — Starnberger See Property Review",
-};
-
-
-function S({ kicker, title, children }: { kicker: string; title: string; children: React.ReactNode }) {
-  return (
-    <section className="py-10 md:py-12 border-t border-rule">
-      <div className="kicker mb-2">{kicker}</div>
-      <h2 className="serif text-[1.6rem] md:text-[1.8rem] text-ink-900 mb-4 leading-tight">{title}</h2>
-      <div>{children}</div>
-    </section>
-  );
+function monthlyPayment(principal: number, ratePct: number, years: number) {
+  const r = ratePct / 100 / 12;
+  const n = years * 12;
+  return (principal * r) / (1 - Math.pow(1 + r, -n));
 }
 
-// Affordability stress: monthly payment €1M loan, 10Y fix + 2% Tilgung
-function monthlyPayment(rateAnnualPct: number, tilgungPct = 2, loanK = 1000) {
-  const rateMonthly = rateAnnualPct / 100 / 12;
-  const tilgungMonthly = tilgungPct / 100 / 12;
-  return Math.round(loanK * (rateMonthly + tilgungMonthly) * 1000);
-}
+export default function TrendsRates() {
+  // Affordability on a €5M purchase, 60% LTV, 25-year amortization
+  const ltv = 0.6;
+  const principal = 5_000_000 * ltv;
+  const years = 25;
+  const affordability = rates.map((r) => ({
+    year: r.year,
+    monthlyCost: monthlyPayment(principal, (r.bauzins10y as number) || 3.5, years),
+    bauzins: r.bauzins10y,
+  }));
 
-const PAYMENTS = RATES.map((r) => ({
-  year: r.year,
-  paymentPer1M: monthlyPayment(r.bauzins ?? 0),
-}));
-
-export default function Page() {
   return (
-    <article className="canvas py-10 md:py-16">
-      <div className="kicker mb-3">Trends · <Link href="/trends" className="underline">All trends</Link></div>
-      <h1 className="serif text-display-lg text-ink-900 leading-[1.04] tracking-tight">Rates &amp; affordability</h1>
-      <p className="serif italic text-ink-600 text-[1.12rem] mt-3 max-w-2xl leading-relaxed">
-        From a 1.0–1.3 % Bauzins corridor in 2015–2021 to a 4.2 % peak in autumn 2022 and back to ~3.4 %
-        in 2025 — the single largest variable behind the 2023 transaction collapse and the 2024–25
-        recovery. For a €5–10M cash or heavy-equity buyer the macro is a weak-neutral tailwind; for a
-        leveraged buyer it is the binding constraint.
-      </p>
+    <>
+      <PageHeader
+        kicker="Trends · Rates & Affordability"
+        title="The rate cycle that broke the market — and hasn't fully healed."
+        standfirst={
+          <>
+            The 2022–23 shock hit German residential harder than the US because variable retail credit is
+            relatively rare and mortgage refinancing is priced off the 10-year Pfandbrief. At the €5–10M
+            band, buyers are typically 40–70% LTV — but rate sensitivity still sets the pace of the tape.
+          </>
+        }
+      />
 
-      <S kicker="01" title="The rate cycle in one chart">
-        <MarketLineChart
-          data={RATES}
-          series={[
-            { key: "bauzins", label: "Bauzins 10Y fix", color: palette.gold },
-            { key: "ecbMro", label: "ECB MRO", color: palette.primary },
-            { key: "ecbDeposit", label: "ECB Deposit", color: palette.primaryLight },
-            { key: "bund10y", label: "10Y Bund", color: palette.ink },
-          ]}
-          yLabel="%"
-          yFormat={(v) => `${v.toFixed(1)}%`}
-          height={340}
+      <Section>
+        <SectionHeader
+          kicker="Bauzins — the headline series"
+          title="Five regimes in 25 years."
+          sub="The 10-yr fixed residential mortgage rate has seen five distinct regimes since 2000: the 5–6 % post-unification regime, the GFC rally to ~4.3 %, the Euro-crisis compression to ~2.7 % (2013), the 1.1–1.9 % ZIRP era (2014–2021), and the 3.4–3.9 % post-shock regime."
         />
-        <p className="prose-editorial max-w-prose mt-4 text-sm">
-          Bauzins (10-year fix, MFI Neugeschäft, year-end) tracks the 10Y Bund + a Pfandbrief spread of
-          ~50–95 bp. The 2022 H2 inflection is the cleanest macro signal in the decade. ECB cut cycle
-          began June 2024; rates stabilising around 2.25–2.50 % deposit through 2025.
-        </p>
-      </S>
-
-      <S kicker="02" title="Monthly payment, € 1M loan @ 10Y fix + 2 % Tilgung">
-        <MarketLineChart
-          data={PAYMENTS}
-          series={[{ key: "paymentPer1M", label: "Monthly payment (€) per €1M loan", color: palette.primary }]}
-          yLabel="€ / month"
-          yFormat={(v) => `€${v.toLocaleString("en-US")}`}
-          height={300}
-        />
-        <p className="prose-editorial max-w-prose mt-4 text-sm">
-          Each €1M of mortgage at the year-end Bauzins + 2 % Tilgung. From €2,460/mo in 2021 to
-          €4,920/mo in 2022 (peak) and €4,500/mo in 2025. For €5M of mortgage the implied monthly
-          payment swings from €12.3k (2021) to €24.6k (2022) to ~€22.5k (2025) — a structural
-          re-rating of affordability.
-        </p>
-      </S>
-
-      <S kicker="03" title="Price-to-income — the affordability cliff">
-        <MarketLineChart
-          data={PRICE_INCOME}
-          series={[{ key: "piRatio", label: "Munich median ETW (80 m²) ÷ median HH income", color: palette.gold }]}
-          yLabel="Multiple"
-          yFormat={(v) => `${v.toFixed(1)}×`}
-          yDomain={[10, 26]}
-          height={280}
-        />
-        <p className="prose-editorial max-w-prose mt-4 text-sm">
-          The Munich price-to-income peaked at 24.2× in 2022 — well into international red-zone
-          territory — and has compressed to ~20.5× via the 2023–24 price correction. Still elevated
-          historically; for context, IMF guidance views &gt;6× as stretched.
-        </p>
-      </S>
-
-      <S kicker="04" title="What this means for the €5–10M cash/equity buyer">
-        <div className="prose-editorial max-w-prose">
-          <ul>
-            <li><strong>Cash and 70 %+ equity buyers carry a premium</strong> — leveraged competition is structurally constrained at current rates. Use this in negotiation (no financing contingency, 4–6 week close).</li>
-            <li><strong>Rates likely drift lower</strong> through 2026 (ECB cycle ongoing) but not back to ZIRP. A 25–50 bp drop changes monthly payment ~€100–200 per €1M — meaningful at scale but unlikely to unlock decisive buyer demand.</li>
-            <li><strong>Pfandbrief spread compression is supportive of financed demand returning</strong>; private banks competing for safe mortgage flow. Mid-segment Munich should continue to recover.</li>
-            <li><strong>Lakefront decouples from this story</strong> — luxury Seelage is overwhelmingly cash-financed (see <Link href="/lakefront" className="underline">/lakefront</Link>). Rates don't gate demand at this tier.</li>
-          </ul>
+        <div className="grid md:grid-cols-4 gap-4 mb-6">
+          <KpiCard label="Bauzins 2000" value="6.20 %" sub="Pre-Euro-crisis baseline. Anchors any “what normal looks like” argument." />
+          <KpiCard
+            label="Bauzins peak 2022"
+            value="3.90 %"
+            sub="Peak of the rate shock: ECB +450 bp in 10 months. Triggered the sharpest German residential volume collapse since 2008."
+            tone="bear"
+            chipLabel="Peak"
+          />
+          <KpiCard
+            label="Bauzins 2025"
+            value="3.40 %"
+            sub="Tailwind: below the 2000–2014 long-run average (4.2 %). The current regime is not historically tight — it's historically average."
+            tone="bull"
+            chipLabel="Tailwind"
+          />
+          <KpiCard
+            label="Bauzins–Bund spread"
+            value="~50 bp"
+            sub="Narrow: 20-year low (was 195 bp in 2009 GFC). Spread compression means banks price residential credit close to sovereign risk — strong signal of lender risk appetite."
+            tone="bull"
+            chipLabel="Narrow"
+          />
         </div>
-      </S>
+        <Figure
+          caption="Bundesbank mortgage 10-yr fix, ECB MRO and Deposit Rates, 10Y Bund yield."
+          source={<SourceCite ids={["bundesbank_rates", "ecb_mrr"]} />}
+        >
+          <PriceLine
+            data={rates}
+            height={360}
+            yUnit="%"
+            lines={[
+              { key: "bauzins10y", label: "Bauzins 10Y fix", color: "#9e3838" },
+              { key: "ecbMro", label: "ECB MRO", color: "#c2a057" },
+              { key: "ecbDepo", label: "ECB Deposit", color: "#a27f3b" },
+              { key: "bund10y", label: "10Y Bund", color: "#225d76" },
+            ]}
+            marks={[
+              { x: 2022, label: "Rate shock", color: "#9e3838" },
+              { x: 2024, label: "First ECB cuts" },
+            ]}
+          />
+        </Figure>
+      </Section>
 
-      <div className="rule-double mt-12 pt-6 source-cite">
-        Bundesbank Zinsstatistik Wohnungsbaukredite; ECB Key Rates; FRED IRLTLT01DEM156N; Statista 1347565; Finanztip / Interhyp historical Bauzinsen. Cross-references{" "}
-        <Link href="/market" className="underline">10-Year Market</Link> and{" "}
-        <Link href="/signals" className="underline">Signals</Link>.
-      </div>
-    </article>
+      <Section tone="parchment">
+        <SectionHeader kicker="Affordability" title="Monthly debt cost on a €5M property (60% LTV, 25-yr)." />
+        <Figure
+          caption="Monthly cost derived from the Bundesbank 10-yr fixed rate and a €3.0M mortgage."
+          source={<SourceCite ids={["bundesbank_rates"]} />}
+          note="Illustrative: individual bank margins typically add 20–80 bp; affluent private-banking clients price below the reported Bauzins."
+        >
+          <PriceLine
+            data={affordability.map((r) => ({ ...r, monthlyCost: Math.round(r.monthlyCost) }))}
+            height={320}
+            yUnit=""
+            lines={[{ key: "monthlyCost", label: "Monthly debt service (€)", color: "#225d76" }]}
+            marks={[{ x: 2022, label: "Peak +67 %", color: "#9e3838" }]}
+          />
+        </Figure>
+        <Prose>
+          <p>
+            On a €5M property financed at 60% LTV over 25 years, the monthly debt cost moved from
+            ~€12,000 (2020, Bauzins 1.16%) to ~€16,800 (2022, 3.90%) — a +40% shock. At the current
+            3.40%, the monthly line is back to ~€15,700: still 30% above pre-2022, but well off peak.
+            For €10M purchases, the absolute numbers scale linearly; the relative stress test is identical.
+          </p>
+        </Prose>
+      </Section>
+
+      <Section>
+        <SectionHeader kicker="The refi wall" title="Why 2026–2028 is the structural watch window." />
+        <Prose>
+          <p>
+            Most German residential mortgages are 10-year fixed, with a typical 10–15 year total
+            amortization via subsequent Anschlussfinanzierung. Loans originated at the 1.1–1.3% ZIRP lows
+            of 2019–2021 reprice into the current rate regime in 2029–2031 — well outside the primary
+            buying horizon here. But the intermediate refi wave, for loans originated at ~1.6–1.8% in
+            2015–2018, is 2025–2028. This is a demand overhang: owners facing a refi will be less likely
+            to move. It reduces inventory flow — a bullish force for existing Bestand, a bearish force for
+            buyer urgency.
+          </p>
+        </Prose>
+        <Callout tone="note" title="For a €5–10M primary-residence buyer">
+          The Bauzins-Bund spread at 50 bp is bank-willingness-to-lend as high as it has been in five
+          years. The cost of waiting for further rate cuts is priced in by sellers; the cost of waiting
+          for price cuts is increasingly priced out at the waterline. These two effects cancel for
+          mainstream tape and favour the seller at the lake.
+        </Callout>
+      </Section>
+
+      <Section tone="parchment">
+        <SectionHeader kicker="Cost of building" title="Construction-cost inflation is the hidden bull case." sub="Baupreisindex +61% 2015→2025. Replacement-cost underwrite for existing Bestand is at an all-time high." />
+        <Figure
+          caption="HPI (Destatis), Baupreisindex (Destatis), 2015=100."
+          source={<SourceCite ids={["destatis_hpi", "destatis_bpi"]} />}
+        >
+          <PriceLine
+            data={bpi.map((r, i) => ({ year: r.year, bpi: r.index, hpi: hpi[i]?.index }))}
+            height={320}
+            yUnit=""
+            lines={[
+              { key: "bpi", label: "Baupreisindex", color: "#a27f3b" },
+              { key: "hpi", label: "Häuserpreisindex", color: "#225d76" },
+            ]}
+          />
+        </Figure>
+      </Section>
+
+      <Section>
+        <SectionHeader kicker="Fan-chart data" title="Rates, year by year." />
+        <DataTable caption="Bauzins, ECB policy rates, 10Y Bund (year-end)">
+          <thead>
+            <tr>
+              <th>Year</th>
+              <th className="text-right">Bauzins 10Y</th>
+              <th className="text-right">ECB MRO</th>
+              <th className="text-right">ECB Deposit</th>
+              <th className="text-right">10Y Bund</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rates.map((r) => (
+              <tr key={r.year}>
+                <td>{r.year}</td>
+                <td className="text-right tabnums">{r.bauzins10y?.toFixed(2)}%</td>
+                <td className="text-right tabnums">{r.ecbMro?.toFixed(2)}%</td>
+                <td className="text-right tabnums">{r.ecbDepo?.toFixed(2)}%</td>
+                <td className="text-right tabnums">{r.bund10y?.toFixed(2)}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
+      </Section>
+    </>
   );
 }

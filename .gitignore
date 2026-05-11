@@ -1,7 +1,14 @@
 node_modules
 .next
-.env*
-!.env.example
+/out
+dist
+build
+
 *.log
 .DS_Store
-out
+.vscode
+.idea
+
+next-env.d.ts
+.vercel
+tsconfig.tsbuildinfo

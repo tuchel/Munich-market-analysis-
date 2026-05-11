@@ -1,107 +1,85 @@
-import Link from "next/link";
-import { SOURCES, type Source } from "@/lib/sources";
+import { PageHeader, SectionHeader } from "@/components/PageHeader";
+import { Section, Prose } from "@/components/Section";
+import { DataTable } from "@/components/DataTable";
+import { sources } from "@/data/sources";
 
-export const metadata = {
-  title: "Sources — Starnberger See Property Review",
-  description:
-    "Exhaustive bibliography of public, official, industry, broker, academic, legal and press sources used to build this portal.",
+const kindLabels: Record<string, string> = {
+  official: "Official & Public Statistics",
+  industry: "Industry Research & Broker Reports",
+  academic: "Academic & Think-Tank",
+  press: "Press & Data Journalism",
+  portal: "Portals & Platforms",
 };
 
-const TYPE_LABELS: Record<Source["type"], string> = {
-  official: "Official / Government",
-  law: "Statute & case law",
-  industry: "Industry research",
-  broker: "Broker market reports",
-  academic: "Academic / Think-tank",
-  press: "Press & data journalism",
-  data: "Reference data",
-  other: "Other",
-};
-
-const TYPE_ORDER: Source["type"][] = ["official", "law", "industry", "broker", "academic", "press", "data", "other"];
-
-const TOPIC_LABELS: Record<string, string> = {
-  macro: "Macro & 10-yr market",
-  communities: "Communities",
-  lakefront: "Lakefront premium",
-  demographics: "Demographics & supply",
-  policy: "Policy & regulation",
-  climate: "Climate & physical risk",
-  competing: "Competing markets",
-  tax: "Tax",
-  legal: "Legal",
-};
-
-export default function Page() {
-  const byType: Record<string, Source[]> = {};
-  for (const s of SOURCES) {
-    byType[s.type] ??= [];
-    byType[s.type].push(s);
-  }
-  const totalCount = SOURCES.length;
-  const topicCounts: Record<string, number> = {};
-  for (const s of SOURCES) for (const t of s.topics) topicCounts[t] = (topicCounts[t] ?? 0) + 1;
+export default function SourcesPage() {
+  const all = Object.values(sources);
+  const groups = all.reduce<Record<string, typeof all>>((acc, s) => {
+    (acc[s.kind] ||= []).push(s);
+    return acc;
+  }, {});
 
   return (
-    <article className="canvas py-10 md:py-16">
-      <div className="kicker mb-3">Bibliography</div>
-      <h1 className="serif text-display-lg text-ink-900 leading-[1.04] tracking-tight">Sources</h1>
-      <p className="serif italic text-ink-600 text-[1.12rem] mt-3 max-w-2xl leading-relaxed">
-        Every figure, table and claim in this portal traces to one of the {totalCount} sources below.
-        Official statistics first, statutes next, then industry research, broker market reports,
-        academic work, press archives. Sources are organised by type and tagged by the dossier they
-        feed into.
-      </p>
+    <>
+      <PageHeader
+        kicker="Reference"
+        title="Sources."
+        standfirst={
+          <>
+            Every series, chart, and estimate in this portal traces back to an entry on this page. We
+            prioritise official statistics (Gutachterausschuss, Destatis, Bundesbank, LfStat), then
+            industry reports from the brokers with the longest Starnberger See books (Engel & Völkers,
+            Sotheby's, Von Poll, JLL, Colliers, Savills, CBRE), then academic and press coverage for
+            context and anecdote.
+          </>
+        }
+        meta={`Bibliography — ${all.length} entries · retrieved 2026-04-23`}
+      />
+      <Section>
+        <Prose>
+          <p>
+            German residential markets are less granular than US MLS tapes. Gutachterausschuss reports
+            aggregate to protect privacy, so luxury-segment trajectories are reconstructed from published
+            bands plus notable-transaction reporting. Every chart that uses such a reconstruction is
+            flagged in its caption, and the methodology page documents the exact step.
+          </p>
+        </Prose>
+      </Section>
 
-      <div className="mt-8 grid md:grid-cols-3 lg:grid-cols-5 gap-3 text-sm">
-        {Object.entries(topicCounts).map(([k, v]) => (
-          <div key={k} className="border border-rule rounded-md px-3 py-2 bg-parchment/40">
-            <div className="kicker mb-0.5">{TOPIC_LABELS[k] ?? k}</div>
-            <div className="serif text-ink-900 tabnums">{v} sources</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-10 hairline" />
-
-      {TYPE_ORDER.map((type) => {
-        const items = byType[type] ?? [];
-        if (!items.length) return null;
-        return (
-          <section key={type} className="py-8 border-t border-rule">
-            <div className="kicker mb-2">{TYPE_LABELS[type]}</div>
-            <h2 className="serif text-[1.5rem] text-ink-900 mb-4">{TYPE_LABELS[type]} <span className="text-ink-500 tabnums">· {items.length}</span></h2>
-            <ol className="space-y-3">
-              {items.map((s, i) => (
-                <li key={s.id} className="grid md:grid-cols-[3rem_1fr] gap-2">
-                  <div className="kicker pt-1">{String(i + 1).padStart(2, "0")}</div>
-                  <div>
-                    <div className="serif text-ink-900 text-[1.02rem]">
-                      {s.url ? (
-                        <a href={s.url} className="hover:underline" target="_blank" rel="noopener noreferrer">{s.title}</a>
-                      ) : (
-                        s.title
-                      )}
-                    </div>
-                    <div className="text-xs text-ink-600 mt-0.5">
-                      <span className="font-medium text-ink-700">{s.publisher}</span>
-                      {s.topics.length > 0 ? (
-                        <span> · {s.topics.map((t) => TOPIC_LABELS[t] ?? t).join(", ")}</span>
-                      ) : null}
-                    </div>
-                    {s.note ? <div className="text-sm text-ink-700 mt-1">{s.note}</div> : null}
-                  </div>
-                </li>
+      {Object.entries(groups).map(([kind, items]) => (
+        <Section key={kind} tone={kind === "official" ? "parchment" : "paper"}>
+          <SectionHeader kicker={kindLabels[kind]} title={`${items.length} sources`} />
+          <DataTable>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Publisher</th>
+                <th>Vintage</th>
+                <th>Retrieved</th>
+                <th>Link</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((s) => (
+                <tr key={s.id}>
+                  <td className="serif font-medium">{s.title}</td>
+                  <td className="text-sm">{s.publisher}</td>
+                  <td className="text-xs tabnums text-ink-600">{s.vintage || "—"}</td>
+                  <td className="text-xs tabnums text-ink-600">{s.retrieved || "—"}</td>
+                  <td className="text-xs">
+                    {s.url ? (
+                      <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-lake-600 underline underline-offset-2 hover:text-lake-800">
+                        open →
+                      </a>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                </tr>
               ))}
-            </ol>
-          </section>
-        );
-      })}
-
-      <div className="rule-double mt-12 pt-6 source-cite">
-        Bibliography last updated 2026-05-11. All URLs valid at retrieval date; if a deep link 404s,
-        navigate from the publisher's root. <Link href="/methodology" className="underline">Methodology →</Link>
-      </div>
-    </article>
+            </tbody>
+          </DataTable>
+        </Section>
+      ))}
+    </>
   );
 }

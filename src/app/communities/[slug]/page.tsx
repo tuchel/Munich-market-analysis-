@@ -1,206 +1,296 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { COMMUNITIES } from "@/lib/data/communities";
-import { LakeMap } from "@/components/LakeMap";
+import { PageHeader, SectionHeader } from "@/components/PageHeader";
+import { Section, Prose } from "@/components/Section";
+import { Figure, Callout } from "@/components/Callout";
+import { DataTable } from "@/components/DataTable";
+import { SourceCite } from "@/components/SourceCite";
+import { LakeMap } from "@/components/charts/LakeMap";
+import { Chip, ratingTone, ratingLabel } from "@/components/Chip";
+import { KpiCard } from "@/components/KpiCard";
+import { allCommunities, getCommunity, lakeCommunities } from "@/data/communities";
+import { shoreInventory } from "@/data/lakefront";
+import { hebesatzGrundsteuerB, zweitwohnsteuer, climate } from "@/data/taxes";
 
 export function generateStaticParams() {
-  return COMMUNITIES.map((c) => ({ slug: c.slug }));
+  return allCommunities.map((c) => ({ slug: c.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const c = COMMUNITIES.find((c) => c.slug === params.slug);
-  if (!c) return {};
-  return {
-    title: `${c.name} — Community profile`,
-    description: `Profile of ${c.name} on the Starnberger See: prestige rank #${c.prestigeRank}, SFH €${c.sfhPerM2.toLocaleString("en-US")}/m², lakefront villa €${c.lakefrontVilla[0]}–${c.lakefrontVilla[1]}M.`,
-  };
-}
+export default function CommunityPage({ params }: { params: { slug: string } }) {
+  const c = getCommunity(params.slug);
+  if (!c) notFound();
 
-function Section({ kicker, title, children }: { kicker: string; title: string; children: React.ReactNode }) {
-  return (
-    <section className="py-8 md:py-10 border-t border-rule">
-      <div className="kicker mb-2">{kicker}</div>
-      <h2 className="serif text-[1.5rem] md:text-[1.7rem] tracking-tight text-ink-900 mb-4 leading-tight">{title}</h2>
-      <div>{children}</div>
-    </section>
-  );
-}
+  const shoreRow = shoreInventory.find((r) => r.community === c.name);
+  const hebesatzRow = hebesatzGrundsteuerB.find((r) => r.gemeinde === c.name);
+  const zwsRow = zweitwohnsteuer.find((r) => r.gemeinde === c.name);
+  const climRow = climate.find((r) => r.gemeinde === c.name);
 
-function outlookChip(o: string) {
-  const map: Record<string, string> = {
-    "bullish": "chip chip-bull",
-    "neutral-bullish": "chip chip-bull",
-    "neutral": "chip chip-neutral",
-    "neutral-bearish": "chip chip-bear",
-    "bearish": "chip chip-bear",
-  };
-  return map[o] ?? "chip chip-neutral";
-}
-
-export default function Page({ params }: { params: { slug: string } }) {
-  const c = COMMUNITIES.find((c) => c.slug === params.slug);
-  if (!c) return notFound();
-
-  // sibling navigation (by prestige rank order)
-  const sorted = [...COMMUNITIES].sort((a, b) => a.prestigeRank - b.prestigeRank);
-  const idx = sorted.findIndex((x) => x.slug === c.slug);
-  const prev = idx > 0 ? sorted[idx - 1] : null;
-  const next = idx < sorted.length - 1 ? sorted[idx + 1] : null;
+  const neighbors =
+    c.kind === "lake"
+      ? lakeCommunities.filter((n) => n.slug !== c.slug).slice(0, 3)
+      : [];
 
   return (
-    <article className="canvas py-10 md:py-16">
-      <div className="kicker mb-3"><Link href="/communities" className="underline">← Communities</Link> · #{c.prestigeRank} of 8</div>
-      <h1 className="serif text-display-lg text-ink-900 leading-[1.04] tracking-tight">{c.name}</h1>
-      <p className="serif italic text-ink-600 text-[1.12rem] mt-3 max-w-2xl leading-relaxed">{c.rationale}</p>
+    <>
+      <PageHeader
+        kicker={c.kind === "lake" ? `Lake community · ${c.shore} shore` : "Munich prime district"}
+        title={c.name}
+        standfirst={<>{c.thesis}</>}
+        meta={c.subtitle}
+      />
 
-      <div className="mt-4 flex items-center gap-2 flex-wrap">
-        <span className={outlookChip(c.outlook)}>{c.outlook.replace("-", " ")}</span>
-        <span className="chip chip-neutral">{c.shore} shore</span>
-        {c.gymnasium ? <span className="chip chip-bull">Gymnasium</span> : <span className="chip chip-neutral">No Gymnasium</span>}
-        {c.intlSchool ? <span className="chip chip-bull">Intl. school</span> : null}
-      </div>
-
-      {/* KPIs */}
-      <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="border border-rule rounded-md p-4 bg-paper">
-          <div className="kicker mb-1">SFH €/m²</div>
-          <div className="number-lg text-ink-900 tabnums">€ {c.sfhPerM2.toLocaleString("en-US")}</div>
-          <div className="text-xs text-ink-500 mt-1">5-yr +{c.trend5yr.sfh} %</div>
+      <Section>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <KpiCard
+            label="Population"
+            value={c.population.toLocaleString()}
+            sub={c.kind === "lake" ? "LK Starnberg Gemeinde" : "Munich district"}
+          />
+          <KpiCard
+            label="SFH median €/m²"
+            value={`€${c.sfhMedianEurPerM2.toLocaleString()}`}
+            sub={c.fiveYrSfh ? `${Math.round(c.fiveYrSfh * 100)}% over 5 years` : undefined}
+            tone={c.fiveYrSfh && c.fiveYrSfh > 0.28 ? "bull" : "neutral"}
+          />
+          <KpiCard
+            label="Lakefront villa range"
+            value={
+              c.lakefrontVillaMinM
+                ? `€${c.lakefrontVillaMinM}–${c.lakefrontVillaMaxM}M`
+                : "—"
+            }
+            sub={c.brwLakefrontLow ? `BRW €${(c.brwLakefrontLow / 1000).toFixed(0)}–${(c.brwLakefrontHigh! / 1000).toFixed(0)}k/m²` : undefined}
+          />
+          <KpiCard
+            label="Outlook"
+            value={ratingLabel(c.outlook)}
+            sub={`${c.thesis.split(".")[0]}. GewSt ${c.gewStHebesatz} % · GrSt B ${c.grundsteuerB} %.`}
+            tone={ratingTone(c.outlook)}
+            chipLabel={ratingLabel(c.outlook)}
+          />
         </div>
-        <div className="border border-rule rounded-md p-4 bg-paper">
-          <div className="kicker mb-1">Luxury P90 €/m²</div>
-          <div className="number-lg text-ink-900 tabnums">€ {(c.luxuryP90[0]/1000).toFixed(0)}–{(c.luxuryP90[1]/1000).toFixed(0)}k</div>
-          <div className="text-xs text-ink-500 mt-1">€3M+ segment</div>
+      </Section>
+
+      <Section tone="parchment">
+        <div className="grid lg:grid-cols-2 gap-6">
+          <Figure caption={`${c.name} — shore position on the Starnbergersee.`}>
+            <LakeMap size={480} highlight={c.slug} linkSlug={false} />
+          </Figure>
+          <div>
+            <SectionHeader kicker="Brief" title="The thesis, unpacked." />
+            <Prose>
+              <p>{c.thesis}</p>
+              {c.buyerProfile && (
+                <p>
+                  <strong>Buyer profile: </strong>
+                  {c.buyerProfile}.
+                </p>
+              )}
+              {c.notable && c.notable.length > 0 && (
+                <>
+                  <p className="mt-4">
+                    <strong>Notable reported transactions:</strong>
+                  </p>
+                  <ul>
+                    {c.notable.map((n, i) => (
+                      <li key={i}>{n}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </Prose>
+          </div>
         </div>
-        <div className="border border-rule rounded-md p-4 bg-paper">
-          <div className="kicker mb-1">Lakefront villa</div>
-          <div className="number-lg text-ink-900 tabnums">€ {c.lakefrontVilla[0]}–{c.lakefrontVilla[1]}M</div>
-          <div className="text-xs text-ink-500 mt-1">Direct waterfront</div>
+      </Section>
+
+      <Section>
+        <SectionHeader kicker="Pricing distribution" title="From inland to lakefront." />
+        <Figure
+          caption="Reported 2025 ranges for SFH, ETW, luxury P90, lakefront villa, 2nd row, and hillside."
+          source={<SourceCite ids={c.sourceIds} />}
+        >
+          <DataTable>
+            <thead>
+              <tr>
+                <th>Segment</th>
+                <th className="text-right">Range</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>SFH median</td>
+                <td className="text-right tabnums">€{c.sfhMedianEurPerM2.toLocaleString()}/m²</td>
+                <td className="text-xs text-ink-600">Kreisweit median for detached single-family</td>
+              </tr>
+              {c.etwMedianEurPerM2 && (
+                <tr>
+                  <td>Apartment (ETW)</td>
+                  <td className="text-right tabnums">€{c.etwMedianEurPerM2.toLocaleString()}/m²</td>
+                  <td className="text-xs text-ink-600">Asking-price median</td>
+                </tr>
+              )}
+              {c.luxP90PerM2Low && (
+                <tr>
+                  <td>Luxury P90 €/m²</td>
+                  <td className="text-right tabnums">
+                    €{c.luxP90PerM2Low.toLocaleString()}–€{c.luxP90PerM2High?.toLocaleString()}
+                  </td>
+                  <td className="text-xs text-ink-600">Top-10% of asking prices</td>
+                </tr>
+              )}
+              {c.brwLakefrontLow && (
+                <tr>
+                  <td>Bodenrichtwert (lakefront)</td>
+                  <td className="text-right tabnums">
+                    €{c.brwLakefrontLow.toLocaleString()}–€{c.brwLakefrontHigh?.toLocaleString()}/m²
+                  </td>
+                  <td className="text-xs text-ink-600">BRW Stand 2024 — land-only</td>
+                </tr>
+              )}
+              {c.lakefrontVillaMinM && (
+                <tr>
+                  <td>Direct-lakefront villa (object)</td>
+                  <td className="text-right tabnums">
+                    €{c.lakefrontVillaMinM}M – €{c.lakefrontVillaMaxM}M
+                  </td>
+                  <td className="text-xs text-ink-600">Depends on Steg, shore-gradient</td>
+                </tr>
+              )}
+              {c.secondRowMinM && (
+                <tr>
+                  <td>2nd row (with view)</td>
+                  <td className="text-right tabnums">
+                    €{c.secondRowMinM}M – €{c.secondRowMaxM}M
+                  </td>
+                  <td className="text-xs text-ink-600">30–80 m inland</td>
+                </tr>
+              )}
+              {c.hillsideMinM && (
+                <tr>
+                  <td>Hillside (view only)</td>
+                  <td className="text-right tabnums">
+                    €{c.hillsideMinM}M – €{c.hillsideMaxM}M
+                  </td>
+                  <td className="text-xs text-ink-600">&gt;100 m from shore</td>
+                </tr>
+              )}
+            </tbody>
+          </DataTable>
+        </Figure>
+      </Section>
+
+      <Section tone="parchment">
+        <div className="grid lg:grid-cols-2 gap-6">
+          <div>
+            <SectionHeader kicker="Tax & commute" title="The municipal stack." />
+            <DataTable>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Gewerbesteuer Hebesatz</td>
+                  <td className="tabnums">{c.gewStHebesatz}%</td>
+                </tr>
+                <tr>
+                  <td>Grundsteuer B Hebesatz</td>
+                  <td className="tabnums">{hebesatzRow?.hebesatzPct || c.grundsteuerB}%</td>
+                </tr>
+                <tr>
+                  <td>Zweitwohnungsteuer</td>
+                  <td>{zwsRow ? (zwsRow.ratePct ? `${zwsRow.ratePct}% Jahresnettokaltmiete` : zwsRow.note) : "—"}</td>
+                </tr>
+                <tr>
+                  <td>S-Bahn on community</td>
+                  <td>{c.sBahn ? "Yes — S6 Hauptast" : "No — car / nearest Gemeinde"}</td>
+                </tr>
+                <tr>
+                  <td>Door-to-Marienplatz (min, peak)</td>
+                  <td className="tabnums">
+                    {c.commuteMinMin}–{c.commuteMaxMin}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Gymnasium on community</td>
+                  <td>{c.gymnasium ? "Yes" : "No (use neighbour)"}</td>
+                </tr>
+                {c.internationalSchoolMin !== undefined && (
+                  <tr>
+                    <td>MIS Munich International School</td>
+                    <td className="tabnums">{c.internationalSchoolMin} min drive</td>
+                  </tr>
+                )}
+              </tbody>
+            </DataTable>
+          </div>
+          <div>
+            <SectionHeader kicker="Climate & physical" title="Lake-level, heat, flood." />
+            <DataTable>
+              <thead>
+                <tr>
+                  <th>Factor</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>HQ100 flood exposure</td>
+                  <td>{climRow?.hq100 || "—"}</td>
+                </tr>
+                <tr>
+                  <td>Critical zones</td>
+                  <td className="text-[0.85rem]">{climRow?.zones || "—"}</td>
+                </tr>
+                <tr>
+                  <td>Warming (2011–2040 proj, DWD)</td>
+                  <td className="tabnums">+{climRow?.warmingC || "—"}°C</td>
+                </tr>
+                <tr>
+                  <td>Heißetage (&ge;30°C, per year)</td>
+                  <td className="tabnums">
+                    {climRow ? `${climRow.heatDaysLow}–${climRow.heatDaysHigh}` : "—"}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Lake trophy / bathability</td>
+                  <td>Oligotroph — top EU Badewasser</td>
+                </tr>
+              </tbody>
+            </DataTable>
+            {shoreRow && (
+              <Callout tone="note" className="mt-4" title="Lakefront inventory">
+                {c.name} controls ~{shoreRow.shoreKm} km of shoreline, of which about{" "}
+                {shoreRow.pctPrivateTradeable}% is privately tradeable — an estimated{" "}
+                {shoreRow.parcelsMin}–{shoreRow.parcelsMax} direct-lakefront parcels. Typical annual
+                turnover is {shoreRow.turnoverMin}–{shoreRow.turnoverMax} transactions.
+              </Callout>
+            )}
+          </div>
         </div>
-        <div className="border border-rule rounded-md p-4 bg-paper">
-          <div className="kicker mb-1">Hebesatz B</div>
-          <div className="number-lg text-ink-900 tabnums">{c.hebesatzGrund} %</div>
-          <div className="text-xs text-ink-500 mt-1">Grundsteuer multiplier</div>
-        </div>
-      </div>
-
-      {/* LOCATION + MAP */}
-      <Section kicker="01" title="On the map">
-        <LakeMap highlight={c.slug} />
       </Section>
 
-      {/* DEMOGRAPHICS */}
-      <Section kicker="02" title="Demographics">
-        <table className="editorial">
-          <tbody>
-            <tr><td>Population</td><td className="tabnums">{c.pop.toLocaleString("en-US")}</td></tr>
-            <tr><td>Median age</td><td className="tabnums">{c.medianAge}</td></tr>
-            <tr><td>Median household income</td><td className="tabnums">€ {c.hhMedianK}k / yr</td></tr>
-            <tr><td>Share &gt; €150k HH</td><td className="tabnums">{c.hiHHSharePct} %</td></tr>
-            <tr><td>Ortsteile / sub-neighbourhoods</td><td>{c.ortsteile.join(", ")}</td></tr>
-          </tbody>
-        </table>
-      </Section>
-
-      {/* PRICING DETAIL */}
-      <Section kicker="03" title="Pricing tiers">
-        <table className="editorial">
-          <thead>
-            <tr><th>Position</th><th>Range</th><th>Note</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Direct lakefront villa</td><td className="tabnums">€ {c.lakefrontVilla[0]}–{c.lakefrontVilla[1]}M</td><td>Bodenrichtwert €{(c.brwLakefront[0]/1000).toFixed(0)}–{(c.brwLakefront[1]/1000).toFixed(0)}k/m²</td></tr>
-            <tr><td>Second-row / near-lake</td><td className="tabnums">€ {c.secondRow[0]}–{c.secondRow[1]}M</td><td>30–80m from waterline, often view-preserved</td></tr>
-            <tr><td>Hillside / interior</td><td className="tabnums">€ {c.hillside[0]}–{c.hillside[1]}M</td><td>View vs no-view dominates</td></tr>
-            <tr><td>SFH median €/m²</td><td className="tabnums">€ {c.sfhPerM2.toLocaleString("en-US")}</td><td>5-yr trend +{c.trend5yr.sfh} %</td></tr>
-            <tr><td>ETW median €/m²</td><td className="tabnums">€ {c.etwPerM2.toLocaleString("en-US")}</td><td>5-yr trend +{c.trend5yr.etw} %</td></tr>
-            <tr><td>Luxury P90 €/m² (est.)</td><td className="tabnums">€ {(c.luxuryP90[0]/1000).toFixed(0)}–{(c.luxuryP90[1]/1000).toFixed(0)}k</td><td>P90 of &gt;€3M segment, broker-derived</td></tr>
-          </tbody>
-        </table>
-      </Section>
-
-      {/* SCARCITY */}
-      <Section kicker="04" title="Lakefront scarcity">
-        <table className="editorial">
-          <tbody>
-            <tr><td>Lakefront share of municipality perimeter</td><td className="tabnums">~ {c.shorePct} %</td></tr>
-            <tr><td>Estimated private lakefront parcels</td><td className="tabnums">{c.lakefrontPrivateParcels[0]}–{c.lakefrontPrivateParcels[1]}</td></tr>
-            <tr><td>Annual lakefront transactions</td><td className="tabnums">~ {c.annualLakefrontTurnover[0]}–{c.annualLakefrontTurnover[1]} / yr</td></tr>
-          </tbody>
-        </table>
-        <p className="mt-3 text-sm text-ink-600">Aggregated across the lake there are roughly 720–905 private lakefront parcels, with 13–23 transactions per year — of which 2–5 sit in the &gt;€10M ultra-prime band. See <Link href="/lakefront" className="underline">Lakefront Premium</Link> for shore-gradient analysis.</p>
-      </Section>
-
-      {/* COMMUTE + SCHOOLS */}
-      <Section kicker="05" title="Commute, schools, infrastructure">
-        <table className="editorial">
-          <tbody>
-            <tr><td>S-Bahn to Marienplatz</td><td className="tabnums">{c.commuteMinSBahn[0]}–{c.commuteMinSBahn[1]} min</td></tr>
-            <tr><td>Car (A95 / A952)</td><td className="tabnums">{c.commuteMinCar[0]}–{c.commuteMinCar[1]} min</td></tr>
-            <tr><td>Gymnasium in community?</td><td>{c.gymnasium ? "Yes" : "No (use Starnberg or Tutzing)"}</td></tr>
-            <tr><td>International school access?</td><td>{c.intlSchool ? "Yes (MIS Buchhof/Percha)" : "No on-shore option"}</td></tr>
-          </tbody>
-        </table>
-      </Section>
-
-      {/* TAX */}
-      <Section kicker="06" title="Tax & holding profile">
-        <table className="editorial">
-          <tbody>
-            <tr><td>Gewerbesteuer-Hebesatz</td><td className="tabnums">{c.hebesatzGewerbe} %</td></tr>
-            <tr><td>Grundsteuer B Hebesatz</td><td className="tabnums">{c.hebesatzGrund} %</td></tr>
-            <tr><td>Zweitwohnungsteuer</td><td>{c.zws ? `${c.zws.rate} % of ${c.zws.basis}` : "none"}</td></tr>
-          </tbody>
-        </table>
-        <p className="mt-3 text-sm text-ink-600">
-          As a primary-residence buyer, the Zweitwohnungsteuer is N/A (Hauptwohnsitz). Bavaria's
-          Grundsteuer-Flächenmodell means a €10M lake villa pays roughly the same as an interior-village
-          home of equal m². See <Link href="/trends/policy-climate" className="underline">Policy &amp; Climate</Link> for the full tax stack.
-        </p>
-      </Section>
-
-      {/* TRANSACTIONS */}
-      <Section kicker="07" title="Notable transactions">
-        <ul className="text-sm text-ink-700 list-disc pl-5 space-y-1">
-          {c.notableTx.map((t, i) => <li key={i}>{t}</li>)}
-        </ul>
-        <p className="mt-3 text-xs text-ink-500 italic">
-          Press-reported; closing prices not always publicly verifiable.
-        </p>
-      </Section>
-
-      {/* BUYER + OUTLOOK */}
-      <Section kicker="08" title="Buyer profile & outlook">
-        <p className="text-sm text-ink-700"><strong>Typical buyer:</strong> {c.buyerProfile}</p>
-        <p className="text-sm text-ink-700 mt-3">
-          <strong>3–5 yr outlook:</strong> <span className={outlookChip(c.outlook)}>{c.outlook.replace("-", " ")}</span> — {c.rationale}
-        </p>
-      </Section>
-
-      {/* CLIMATE */}
-      <Section kicker="09" title="Climate & flood">
-        <table className="editorial">
-          <tbody>
-            <tr><td>HQ100 risk</td><td>{c.flood}</td></tr>
-            <tr><td>Critical zones / heat outlook</td><td>{c.climateNote}</td></tr>
-          </tbody>
-        </table>
-      </Section>
-
-      {/* NAV */}
-      <div className="mt-12 pt-6 border-t border-rule flex flex-col md:flex-row md:items-center justify-between gap-3">
-        {prev ? (
-          <Link href={`/communities/${prev.slug}`} className="text-sm text-ink-600 hover:text-ink-900">
-            ← #{prev.prestigeRank} {prev.name}
-          </Link>
-        ) : <span />}
-        <Link href="/communities" className="text-sm text-ink-600 hover:text-ink-900">All communities</Link>
-        {next ? (
-          <Link href={`/communities/${next.slug}`} className="text-sm text-ink-600 hover:text-ink-900">
-            #{next.prestigeRank} {next.name} →
-          </Link>
-        ) : <span />}
-      </div>
-    </article>
+      {neighbors.length > 0 && (
+        <Section>
+          <SectionHeader kicker="Next" title="Adjacent lake communities." />
+          <div className="grid md:grid-cols-3 gap-4">
+            {neighbors.map((n) => (
+              <Link
+                key={n.slug}
+                href={`/communities/${n.slug}`}
+                className="block bg-paper border border-rule rounded-md p-4 hover:bg-parchment transition-colors shadow-card"
+              >
+                <div className="kicker text-gold-500">{n.shore} shore</div>
+                <div className="serif text-[1.1rem] text-ink-900">{n.name}</div>
+                <div className="text-sm text-ink-600 mt-1 leading-snug">{n.thesis.split(".")[0]}.</div>
+              </Link>
+            ))}
+          </div>
+        </Section>
+      )}
+    </>
   );
 }

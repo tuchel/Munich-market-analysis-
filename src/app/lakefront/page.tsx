@@ -1,260 +1,330 @@
-import Link from "next/link";
-import { MarketLineChart, palette } from "@/components/charts/Chart";
-import { SHORE_GRADIENT_POINTS, PARCELS_BY_COMMUNITY, PREMIUM_MULTIPLES, NOTABLE_TRANSACTIONS, UFERSCHUTZ_REGIME } from "@/lib/data/lakefront";
+import { PageHeader, SectionHeader } from "@/components/PageHeader";
+import { Section, Prose } from "@/components/Section";
+import { Figure, Callout } from "@/components/Callout";
+import { DataTable } from "@/components/DataTable";
+import { KpiCard } from "@/components/KpiCard";
+import { SourceCite } from "@/components/SourceCite";
+import { ShoreGradientChart } from "@/components/charts/ShoreGradientChart";
+import { BarCompare } from "@/components/charts/BarCompare";
+import {
+  shoreTiers,
+  positionMultipliers,
+  shoreInventory,
+  shoreTotals,
+  notableTransactions,
+  legalRegime,
+  seeuferwegImpact,
+  dockPremiums,
+} from "@/data/lakefront";
 
-export const metadata = {
-  title: "Lakefront Premium — Starnberger See Property Review",
-  description:
-    "Scarcity, shore gradient, Uferschutz, Denkmalschutz, Seeuferweg case law and notable lakefront transactions on the Starnberger See.",
-};
+export default function LakefrontPage() {
+  const txChart = notableTransactions.map((t) => ({
+    year: t.year,
+    community: t.community,
+    priceMidM: (t.priceMinM + t.priceMaxM) / 2,
+    priceMinM: t.priceMinM,
+    priceMaxM: t.priceMaxM,
+  }));
 
-
-function S({ kicker, title, children }: { kicker: string; title: string; children: React.ReactNode }) {
   return (
-    <section className="py-10 md:py-14 border-t border-rule">
-      <div className="kicker mb-2">{kicker}</div>
-      <h2 className="serif text-[1.7rem] md:text-[1.9rem] tracking-tight text-ink-900 mb-5 leading-tight">{title}</h2>
-      <div>{children}</div>
-    </section>
-  );
-}
+    <>
+      <PageHeader
+        kicker="Part III · Lakefront Premium"
+        title="Why the last 60 metres are worth more than the last six kilometres."
+        standfirst={
+          <>
+            The direct-lakefront segment is a micro-market with its own supply curve, legal regime, and
+            buyer set. This page separates the shore gradient, the scarcity math, the legal friction, and
+            the €10M+ record — the four ingredients that underwrite the lake's structural premium.
+          </>
+        }
+      />
 
-const totalParcels = PARCELS_BY_COMMUNITY.reduce(
-  (acc, c) => ({ lo: acc.lo + c.parcels[0], hi: acc.hi + c.parcels[1] }),
-  { lo: 0, hi: 0 }
-);
-const totalTurnover = PARCELS_BY_COMMUNITY.reduce(
-  (acc, c) => ({ lo: acc.lo + c.turnover[0], hi: acc.hi + c.turnover[1] }),
-  { lo: 0, hi: 0 }
-);
-
-export default function Page() {
-  return (
-    <article className="canvas py-10 md:py-16">
-      <div className="kicker mb-3">Premium sub-market</div>
-      <h1 className="serif text-display-lg text-ink-900 leading-[1.04] tracking-tight">Lakefront Premium</h1>
-      <p className="serif italic text-ink-600 text-[1.12rem] mt-3 max-w-2xl leading-relaxed">
-        Direct-waterfront on the Starnberger See is a scarcity good. Only ~50 % of the ~49 km shoreline is
-        privately tradeable; the rest is Wittelsbach, monastery, state forestry, conservation reed-belt and
-        public park. The legal regime — BayWG, BauGB §35, Landschaftsschutz, Denkmalschutz, GEG —
-        compounds the scarcity by making new supply effectively impossible to create.
-      </p>
-
-      <div className="mt-10 grid md:grid-cols-4 gap-3 text-sm">
-        <div className="border border-rule rounded-md p-4 bg-paper">
-          <div className="kicker mb-1">Shore length</div>
-          <div className="number-lg text-ink-900 tabnums">~ 49 km</div>
-          <div className="text-xs text-ink-500 mt-1">2nd largest Bavarian lake by area</div>
+      <Section>
+        <SectionHeader kicker="Scarcity" title="Forty-nine kilometres of shore, eight hundred tradeable parcels." />
+        <div className="grid md:grid-cols-4 gap-4">
+          <KpiCard label="Shoreline" value={`${shoreTotals.shoreKm.toFixed(1)} km`} sub="Total Gemeinde-measured. Fixed quantity — cannot grow." />
+          <KpiCard
+            label="Protected (perpetual)"
+            value={`~${shoreTotals.protectedSharePct}%`}
+            sub="Off-market: Wittelsbach, Kloster, state forest, Naturschutzgebiet. This share doesn't trade — ever. It's the base of the scarcity premium."
+            tone="neutral"
+            chipLabel="Off-market"
+          />
+          <KpiCard
+            label="Direct-lakefront parcels (private)"
+            value={`${shoreTotals.parcelsMin.toLocaleString()}–${shoreTotals.parcelsMax.toLocaleString()}`}
+            sub="Our estimate of privately tradeable parcels after subtracting the protected share. ~720–900 is the universe a €10M+ buyer competes in."
+          />
+          <KpiCard
+            label="Annual turnover"
+            value={`${shoreTotals.turnoverMin}–${shoreTotals.turnoverMax}`}
+            sub="Tight: at ~2 % annual churn, a buyer with a specific Gemeinde preference waits 3–7 years for the right object. Only 2–5 of these transactions clear above €10M."
+            tone="bull"
+            chipLabel="Tight"
+          />
         </div>
-        <div className="border border-rule rounded-md p-4 bg-paper">
-          <div className="kicker mb-1">Privately tradeable shore</div>
-          <div className="number-lg text-ink-900 tabnums">~ 50 %</div>
-          <div className="text-xs text-ink-500 mt-1">~35–45 % off-market permanently</div>
-        </div>
-        <div className="border border-rule rounded-md p-4 bg-paper">
-          <div className="kicker mb-1">Lakefront parcels</div>
-          <div className="number-lg text-ink-900 tabnums">{totalParcels.lo}–{totalParcels.hi}</div>
-          <div className="text-xs text-ink-500 mt-1">Total private, all 8 communities</div>
-        </div>
-        <div className="border border-rule rounded-md p-4 bg-paper">
-          <div className="kicker mb-1">Annual transactions</div>
-          <div className="number-lg text-ink-900 tabnums">{totalTurnover.lo}–{totalTurnover.hi}/yr</div>
-          <div className="text-xs text-ink-500 mt-1">Of which 2–5 &gt; € 10M</div>
-        </div>
-      </div>
-
-      <S kicker="01" title="Shore gradient model — €/m² vs distance from waterline">
-        <p className="prose-editorial max-w-prose mb-4">
-          A calibrated decay curve: direct waterfront sets the baseline (1.00× ≈ € 35,000/m² land in
-          Tier-1 communities), and value falls fast with distance. The view/no-view distinction creates
-          a hard step function — losing the lake view at a given distance roughly halves price. Functional
-          approximation (with view): <span className="font-mono text-sm">m ≈ 0.10 + 0.90·exp(−d/60)</span>.
-        </p>
-        <MarketLineChart
-          data={SHORE_GRADIENT_POINTS as any}
-          xKey="d"
-          series={[
-            { key: "eurPerM2WithView", label: "With lake view (€/m²)", color: palette.gold, type: "line" },
-            { key: "eurPerM2NoView", label: "No view (€/m²)", color: palette.primary, type: "line" },
-          ]}
-          yLabel="€ / m² land"
-          yFormat={(v) => `€${(v / 1000).toFixed(0)}k`}
-          height={320}
-        />
-        <p className="prose-editorial max-w-prose mt-4 text-sm text-ink-600">
-          x-axis: distance from waterline in metres. Curve calibrated to E&amp;V Lake Property edition
-          benchmarks and hedonic-pricing literature.
-        </p>
-      </S>
-
-      <S kicker="02" title="Price-premium multiples ladder">
-        <p className="prose-editorial max-w-prose mb-4">
-          The full position ladder, indexed to direct waterfront = 1.00×. A Steg with valid Altbestand
-          Wasserrecht adds 15–30 % over the baseline; an enforced Seeuferweg subtracts 20–35 %.
-        </p>
-        <table className="editorial">
-          <thead>
-            <tr><th>Position</th><th>Multiplier</th><th>€ / m² land (2025)</th></tr>
-          </thead>
-          <tbody>
-            {PREMIUM_MULTIPLES.map((p, i) => (
-              <tr key={i} className={i === 1 ? "bg-parchment" : ""}>
-                <td>{p.position}</td>
-                <td className="tabnums">{p.multiplier}</td>
-                <td className="tabnums">{p.eurPerM2}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </S>
-
-      <S kicker="03" title="Parcels & turnover by community">
-        <table className="editorial">
-          <thead>
-            <tr><th>Community</th><th>Shore (km)</th><th>% private</th><th>Lakefront parcels</th><th>Annual turnover</th></tr>
-          </thead>
-          <tbody>
-            {PARCELS_BY_COMMUNITY.map((c) => (
-              <tr key={c.community}>
-                <td className="serif">{c.community}</td>
-                <td className="tabnums">{c.shoreKm.toFixed(1)}</td>
-                <td className="tabnums">{c.privatePct} %</td>
-                <td className="tabnums">{c.parcels[0]}–{c.parcels[1]}</td>
-                <td className="tabnums">{c.turnover[0]}–{c.turnover[1]} / yr</td>
-              </tr>
-            ))}
-            <tr className="bg-parchment">
-              <td><strong>Total</strong></td>
-              <td className="tabnums"><strong>~ 48.5</strong></td>
-              <td className="tabnums"><strong>~ 50 %</strong></td>
-              <td className="tabnums"><strong>{totalParcels.lo}–{totalParcels.hi}</strong></td>
-              <td className="tabnums"><strong>{totalTurnover.lo}–{totalTurnover.hi} / yr</strong></td>
-            </tr>
-          </tbody>
-        </table>
-      </S>
-
-      <S kicker="04" title="The legal regime — four overlapping layers">
-        <div className="prose-editorial max-w-prose space-y-4">
-          <div>
-            <h3 className="serif text-[1.15rem] text-ink-900 mb-1">BayWG (Bayerisches Wassergesetz)</h3>
-            <p>Article 21 sets a 5 m <em>Gewässerrandstreifen</em> at lakes (Bavaria default), routinely extended to 10–30 m via municipal overlay, and to 40–50 m where a B-Plan or LSG-Verordnung applies. Article 27 establishes the public right of passage along navigable waters — the legal hook for Seeuferweg designation. New private <em>Steg</em> permits from Wasserwirtschaftsamt Weilheim are essentially unobtainable outside Bestandsersatz; <strong>Altbestand Stege are a distinct asset line worth € 150k–€ 2.5M</strong> depending on size.</p>
-          </div>
-          <div>
-            <h3 className="serif text-[1.15rem] text-ink-900 mb-1">BauGB §35 Außenbereich</h3>
-            <p>Most lakefront outside an existing qualified Bebauungsplan sits in the <em>Außenbereich</em>, where new building is prohibited save for Bestandsschutz-replacement and privileged uses. <strong>This is the cornerstone value driver for Altbestand: you cannot replicate it</strong>. A derelict 1920s Bootshaus with 60 m² footprint in Außenbereich can carry €1.5–3M of pure-Baurecht value because of the irreplaceable replacement-right it embeds.</p>
-          </div>
-          <div>
-            <h3 className="serif text-[1.15rem] text-ink-900 mb-1">LSG &amp; FFH (Landschaftsschutz / Natura 2000)</h3>
-            <p>The "Starnberger See Ost" and "Starnberger See West" LSG-Verordnungen cover almost the entire non-village shoreline. The Starnberger See is also FFH-Gebiet DE-8033-371 (Natura 2000). LSG controls tree removal, hedging, fencing, Steg aesthetics, exterior lighting. Combined with Denkmalschutz where applicable, the effective construction envelope is routinely 20–30 % below paper-BGF.</p>
-          </div>
-          <div>
-            <h3 className="serif text-[1.15rem] text-ink-900 mb-1">Denkmalschutz (BayDSchG) + GEG</h3>
-            <p>Many Starnbergersee villas (Jugendstil, Historismus, Heimatstil 1870–1930) are listed individually or as ensemble. Obligations: Erlaubnis for any externally-visible change. Offset: <strong>§7i EStG AfA — 9 %×8 yr + 7 %×4 yr on qualifying restoration costs</strong>, a decisive tax-shelter for high-income buyers. GEG §105 exempts Denkmal from most modern energy mandates; the trade-off is higher running costs.</p>
-          </div>
-        </div>
-      </S>
-
-      <S kicker="05" title="Uferschutz regime by community">
-        <table className="editorial">
-          <thead>
-            <tr><th>Community</th><th>LSG coverage</th><th>Effective setback</th><th>Seeuferweg</th><th>Denkmal density</th></tr>
-          </thead>
-          <tbody>
-            {UFERSCHUTZ_REGIME.map((r) => (
-              <tr key={r.community}>
-                <td className="serif">{r.community}</td>
-                <td>{r.lsg}</td>
-                <td>{r.setback}</td>
-                <td>{r.path}</td>
-                <td>{r.denkmal}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </S>
-
-      <S kicker="06" title="The Seeuferweg wars">
-        <div className="prose-editorial max-w-prose">
-          <p>BayWG Art. 27 grants the principle of public passage along navigable waters. The Bayerischer Verwaltungsgerichtshof has affirmed that municipalities may designate a <em>Seeuferweg</em> across private parcels under tight conditions (proportionality, no building encroachment, compensation or tolerance).</p>
-          <p><strong>Münsing</strong> spent more than 15 years in litigation over the Ammerland/Ambach stretch — multiple BayVGH rulings (Az. 8 B series through the 2010s). <strong>Berg</strong> had parallel disputes around Assenbuch/Kempfenhausen. Outcomes mixed: some stretches opened via easement (path 1–3 m inland of strict Uferlinie); others remain closed.</p>
-          <p><strong>Value impact:</strong></p>
-          <ul>
-            <li>Parcel with enforced Seeuferweg cutting through garden/shoreline: <strong>−20–35 %</strong> of direct-lakefront premium.</li>
-            <li>Path routed along driveway boundary: <strong>−5–10 %</strong>.</li>
-            <li>Parcel in "under review" zone: <strong>−5–12 %</strong> latent discount.</li>
-          </ul>
-          <p>For any specific Seegrundstück: pull the LSG-Verordnung text from the Landratsamt, the FNP-Fortschreibung status from the Gemeinde, and ask explicitly whether the parcel is in a Seeuferweg-Prüfgebiet.</p>
-        </div>
-      </S>
-
-      <S kicker="07" title="Notable transactions (press-reported)">
-        <p className="prose-editorial max-w-prose mb-4">
-          The Starnbergersee ultra-prime market is heavily obscured by share-deal structures and family
-          holding vehicles. Closed prices in the Gutachterausschuss Kaufpreissammlung are confidential.
-          These are press-reported ranges from SZ, Merkur, FAZ and Handelsblatt archives — treat as
-          ranges, not point values.
-        </p>
-        <div className="overflow-x-auto">
-          <table className="editorial">
+        <Figure
+          className="mt-6"
+          caption="Per-community shoreline, private-tradeable share, parcel counts, and annual turnover."
+          source={<SourceCite ids={["gutachter_lk_sta", "boris_bayern", "lfu_hq100", "ev_starnberg"]} />}
+        >
+          <DataTable>
             <thead>
-              <tr><th>Year</th><th>Community</th><th>Type</th><th>Living m²</th><th>Land m²</th><th>Shore m</th><th>Reported range</th></tr>
+              <tr>
+                <th>Community</th>
+                <th className="text-right">Shore km</th>
+                <th className="text-right">% tradeable</th>
+                <th className="text-right">Direct-lakefront parcels</th>
+                <th className="text-right">Annual turnover</th>
+              </tr>
             </thead>
             <tbody>
-              {NOTABLE_TRANSACTIONS.map((t, i) => (
-                <tr key={i}>
-                  <td className="tabnums">{t.year}</td>
-                  <td className="serif">{t.community}</td>
-                  <td>{t.type}</td>
-                  <td className="tabnums">{t.living.toLocaleString("en-US")}</td>
-                  <td className="tabnums">{t.land.toLocaleString("en-US")}</td>
-                  <td className="tabnums">{t.shore}</td>
-                  <td className="tabnums">{t.range}</td>
+              {shoreInventory.map((r) => (
+                <tr key={r.community}>
+                  <td className="serif font-medium">{r.community}</td>
+                  <td className="text-right tabnums">{r.shoreKm.toFixed(1)}</td>
+                  <td className="text-right tabnums">{r.pctPrivateTradeable}%</td>
+                  <td className="text-right tabnums">
+                    {r.parcelsMin}–{r.parcelsMax}
+                  </td>
+                  <td className="text-right tabnums">
+                    {r.turnoverMin}–{r.turnoverMax}
+                  </td>
+                </tr>
+              ))}
+              <tr className="bg-parchment/70 font-semibold">
+                <td>Total</td>
+                <td className="text-right tabnums">{shoreTotals.shoreKm.toFixed(1)}</td>
+                <td className="text-right tabnums">~50%</td>
+                <td className="text-right tabnums">
+                  {shoreTotals.parcelsMin}–{shoreTotals.parcelsMax}
+                </td>
+                <td className="text-right tabnums">
+                  {shoreTotals.turnoverMin}–{shoreTotals.turnoverMax}
+                </td>
+              </tr>
+            </tbody>
+          </DataTable>
+        </Figure>
+      </Section>
+
+      <Section tone="parchment">
+        <SectionHeader
+          kicker="Shore tiers"
+          title="Three tiers, eight digits of spread."
+          sub="Published Bodenrichtwerte and transacted €/m² cluster into three shore tiers. Tier 1+ (Feldafing park-edge) has traded as high as €70k/m² on land alone."
+        />
+        <div className="grid md:grid-cols-3 gap-4">
+          {shoreTiers.map((t) => (
+            <div
+              key={t.id}
+              className="bg-paper border border-rule rounded-md p-4 shadow-card"
+              style={{ borderTop: `4px solid ${t.color}` }}
+            >
+              <div className="kicker text-gold-500">{t.id === "tier1p" ? "Trophy ceiling" : t.id === "tier1" ? "Top tier" : "Second tier"}</div>
+              <div className="serif text-[1.1rem] text-ink-900 leading-tight mt-1">{t.name}</div>
+              <div className="mt-2 tabnums text-ink-800">
+                <span className="number-lg">€{(t.priceMinPerM2 / 1000).toFixed(0)}k</span>
+                <span className="text-ink-500 mx-1">–</span>
+                <span className="number-lg">€{(t.priceMaxPerM2 / 1000).toFixed(0)}k</span>
+                <span className="text-sm text-ink-500"> /m²</span>
+              </div>
+              <ul className="mt-3 text-sm text-ink-700 space-y-0.5">
+                {t.communities.map((n) => (
+                  <li key={n}>· {n}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section>
+        <SectionHeader
+          kicker="Shore gradient"
+          title="Price collapses with every metre inland."
+          sub="Hedonic work on German alpine lakes converges on 3–6× multiples. Starnbergersee is at the top end: direct-lakefront parcels trade at 6–10× same-Gemeinde hillside and 15–25× inland no-view."
+        />
+        <Figure
+          caption="% of direct-lakefront €/m² as a function of metres from waterline, for parcels with and without a preserved lake view."
+          source={<SourceCite ids={["gutachter_lk_sta", "boris_bayern", "ev_starnberg"]} />}
+          note="Functional approximation: with-view m = 0.10 + 0.90·exp(-d/60); no-view m = 0.10 + 0.30·exp(-d/80)."
+        >
+          <ShoreGradientChart />
+        </Figure>
+        <Figure
+          caption="Positional multipliers and 2025 €/m² land-only ranges, holding community constant."
+          source={<SourceCite ids={["boris_bayern", "gutachter_lk_sta", "ev_starnberg"]} />}
+        >
+          <DataTable>
+            <thead>
+              <tr>
+                <th>Position</th>
+                <th className="text-right">Multiplier (× direct)</th>
+                <th className="text-right">€/m² (2025)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {positionMultipliers.map((p) => (
+                <tr key={p.label}>
+                  <td>{p.label}</td>
+                  <td className="text-right tabnums">
+                    {p.min.toFixed(2)}–{p.max.toFixed(2)}×
+                  </td>
+                  <td className="text-right tabnums">
+                    €{p.perM2Min.toFixed(1)}k – €{p.perM2Max.toFixed(1)}k
+                  </td>
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
-        <p className="text-xs text-ink-500 italic mt-3">
-          €/m² gradient implied by these closes: € 25,000–55,000/m² land for trophy lakefront,
-          consistent with the Tier-1 premium-multiples ladder.
-        </p>
-      </S>
+          </DataTable>
+        </Figure>
+      </Section>
 
-      <S kicker="08" title="The hedonic premium">
-        <div className="prose-editorial max-w-prose">
-          <p>Academic hedonic-pricing literature on Bodensee, Wörthersee, Zürichsee and US lakefront markets suggests a <strong>3–6× lakefront premium</strong> over inland-equivalent properties.</p>
-          <p>Starnbergersee empirically <em>exceeds</em> this. Direct-lakefront €/m² land routinely trades at:</p>
-          <ul>
-            <li><strong>6–10×</strong> the equivalent hillside-view parcel in the same Gemeinde</li>
-            <li><strong>15–25×</strong> the inland no-view interior-village equivalent</li>
-          </ul>
-          <p>The explanation: scarcity × Munich-wealth demand × regulatory impossibility of creating new supply. The premium has widened, not narrowed, through the 2015–2025 cycle — see <Link href="/market" className="underline">10-Year Market</Link>.</p>
+      <Section tone="parchment">
+        <SectionHeader
+          kicker="Legal regime"
+          title="What governs what you can do on the shore."
+          sub="The most common buyer mistake at the lake is pricing a waterfront parcel as if it were a zoned building lot. Five instruments govern what you can build, keep, replace, or remove."
+        />
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {legalRegime.map((l) => (
+            <Callout key={l.id} title={l.title}>
+              {l.body}
+            </Callout>
+          ))}
         </div>
-      </S>
+        <Figure
+          className="mt-6"
+          caption="Value impact of Seeuferweg (public lakeshore path) designations."
+          source={<SourceCite ids={["baywg", "municipal_sites"]} />}
+        >
+          <DataTable>
+            <thead>
+              <tr>
+                <th>Situation</th>
+                <th>Price impact</th>
+              </tr>
+            </thead>
+            <tbody>
+              {seeuferwegImpact.map((s) => (
+                <tr key={s.situation}>
+                  <td>{s.situation}</td>
+                  <td>{s.impact}</td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+        </Figure>
+      </Section>
 
-      <S kicker="09" title="Reading the lakefront market in 2026">
-        <div className="prose-editorial max-w-prose">
-          <ol>
-            <li>True lakefront stock is ~720–905 private parcels. Annual turnover 13–23 transactions; only 2–5 in the &gt;€10M trophy band.</li>
-            <li>Tier-1 communities (Berg/Leoni, Feldafing, Tutzing, Pöcking, Münsing-Ammerland) print €22–55k/m² land. Tier-2 (Starnberg, Seeshaupt, Bernried) print €15–32k/m² land.</li>
-            <li>Steg Altbestand and Bootshaus permits are distinct assets; new permits unobtainable.</li>
-            <li>Seeuferweg status is the single most impactful overlay risk after Bestandsschutz status.</li>
-            <li>Denkmal villas carry a complex risk/reward: high restoration capex, soft GEG exemption, powerful AfA shelter via §§7i, 11b EStG.</li>
-            <li>Construction-cost floor is +61 % cumulative since 2015 — replacement-cost defence is durable.</li>
+      <Section>
+        <SectionHeader kicker="Stege & Bootshäuser" title="Private docks carry the Altbestand premium." sub="WWA Weilheim grants essentially no new private Stege. A pre-existing Wasserrecht is the only way to own a usable dock." />
+        <Figure
+          caption="Added value of a preserved private Steg or Bootshaus (Altbestand, with Wasserrecht)."
+          source={<SourceCite ids={["wwa_weilheim", "baywg", "ev_starnberg"]} />}
+        >
+          <DataTable>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th className="text-right">Added value €k</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dockPremiums.map((d) => (
+                <tr key={d.item}>
+                  <td>{d.item}</td>
+                  <td className="text-right tabnums">
+                    {d.addValueEurK[0] === 0 && d.addValueEurK[1] === 0
+                      ? "No realisable value (new permits essentially not granted)"
+                      : `€${d.addValueEurK[0]}–€${d.addValueEurK[1]}k`}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+        </Figure>
+      </Section>
+
+      <Section tone="parchment">
+        <SectionHeader
+          kicker="The record"
+          title="Notable €10M+ lakefront transactions, 2013–2025."
+          sub="Every reported direct-lakefront sale above ~€10M the press captured in the last twelve years. Prices are ranges because Gutachterausschuss aggregates; precise clearing prices rarely public."
+        />
+        <Figure
+          caption="Reported press midpoints for €10M+ direct-lakefront transactions."
+          source={<SourceCite ids={["sz_starnberg", "merkur_sta", "handelsblatt_lux", "faz_immo"]} />}
+        >
+          <BarCompare
+            data={txChart}
+            xKey="year"
+            yUnit="M"
+            bars={[{ key: "priceMidM", label: "Midpoint (€M)", color: "#225d76" }]}
+            height={320}
+            layout="vertical"
+          />
+        </Figure>
+        <Figure
+          caption="Tabular detail."
+          source={<SourceCite ids={["sz_starnberg", "handelsblatt_lux", "faz_immo", "merkur_sta"]} />}
+        >
+          <DataTable>
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Community</th>
+                <th>Type</th>
+                <th className="text-right">Living m²</th>
+                <th className="text-right">Land m²</th>
+                <th className="text-right">Shore m</th>
+                <th className="text-right">Range (€M)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {notableTransactions.map((t) => (
+                <tr key={`${t.year}-${t.community}`}>
+                  <td className="tabnums">{t.year}</td>
+                  <td className="serif font-medium">{t.community}</td>
+                  <td>{t.type}</td>
+                  <td className="text-right tabnums">{t.livingM2}</td>
+                  <td className="text-right tabnums">{t.landM2}</td>
+                  <td className="text-right tabnums">{t.shoreM}</td>
+                  <td className="text-right tabnums">
+                    €{t.priceMinM}–€{t.priceMaxM}M
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+        </Figure>
+      </Section>
+
+      <Section>
+        <SectionHeader kicker="Takeaways" title="Three compounding scarcities." />
+        <Prose>
+          <ol className="list-decimal pl-6 space-y-2">
+            <li>
+              <strong>Physical shore is finite.</strong> 49 km of shoreline, 42% of which is perpetually
+              off-market. 720–900 tradeable parcels on the private tape.
+            </li>
+            <li>
+              <strong>Regulatory shore is tighter.</strong> Außenbereich + BayWG §21 + LSG overlays forbid
+              new construction and width widen-outs. Every privately tradeable parcel is a Bestand bet.
+            </li>
+            <li>
+              <strong>Docks are a closed set.</strong> No new private Stege. Altbestand Wasserrechte are
+              the only viable path to a usable dock — an intangible worth €150k–€2.5M in the market.
+            </li>
           </ol>
-          <p className="serif italic text-ink-700 mt-4">
-            For a primary-residence buyer at €5–10M, the realistic lakefront set is: Münsing/Ambach lakefront (smaller, older); Bernried (limited inventory); Seeshaupt south end (commute drag); Tutzing west shore (rare); occasional Pöcking second-row. Tier-1 north-shore lakefront is structurally above €10M except in distressed conditions.
+          <p>
+            Those three scarcities, compounding, are the reason direct-lakefront prices passed the 2022
+            peak in 2025 while the broader Kreis, Munich city, and the national HPI are still below it.
           </p>
-        </div>
-      </S>
-
-      <div className="rule-double mt-12 pt-6 source-cite">
-        Cross-references the <Link href="/communities" className="underline">Communities</Link>,{" "}
-        <Link href="/trends/policy-climate" className="underline">Policy &amp; Climate</Link> and{" "}
-        <Link href="/market" className="underline">10-Year Market</Link> pages. Statute texts (BayWG, BauGB, BayDSchG, GEG) and BayVGH case law on{" "}
-        <Link href="/sources" className="underline">/sources</Link>.
-      </div>
-    </article>
+        </Prose>
+      </Section>
+    </>
   );
 }
