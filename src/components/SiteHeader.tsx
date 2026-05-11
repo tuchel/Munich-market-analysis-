@@ -2,13 +2,15 @@ import Link from "next/link";
 
 const nav = [
   { href: "/", label: "Overview" },
-  { href: "/market", label: "10-Year Market" },
+  { href: "/property/klenzestrasse-22", label: "Property memo" },
+  { href: "/property/klenzestrasse-22/negotiation", label: "Negotiation" },
+  { href: "/market", label: "Market" },
   { href: "/communities", label: "Communities" },
-  { href: "/lakefront", label: "Lakefront Premium" },
+  { href: "/lakefront", label: "Lakefront" },
   { href: "/signals", label: "Signals" },
   { href: "/trends", label: "Trends" },
   { href: "/tools", label: "Tools" },
-  { href: "/due-diligence", label: "Due Diligence" },
+  { href: "/due-diligence", label: "Diligence" },
   { href: "/sources", label: "Sources" },
 ];
 
